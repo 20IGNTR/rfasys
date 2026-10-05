@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard General — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+    }
+    .section-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: #ffffff;
+        margin: 0;
+    }
+
+    /* Filas translúcidas de actividad / servicio */
+    .issue-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.65rem 0.85rem;
+        border-radius: var(--rfa-radius-sm);
+        border: 1px solid transparent;
+        transition: all 0.12s ease;
+        text-decoration: none;
+        color: inherit;
+        background-color: rgba(255, 255, 255, 0.02);
+        margin-bottom: 0.35rem;
+    }
+    .issue-row:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: var(--rfa-border);
+        color: inherit;
+    }
+
+    .issue-id {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--rfa-text-muted);
+        width: 75px;
+    }
+    .issue-title {
+        font-size: 0.825rem;
+        color: var(--rfa-text);
+        font-weight: 500;
+    }
+
+    .kpi-number {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.45rem;
+        font-weight: 600;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+    }
+
+    .kpi-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .input-linear {
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text);
+        font-size: 0.8rem;
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    .input-linear:focus {
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+        outline: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Capa interactiva de partículas y engranajes -->
+<canvas id="networkCanvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0;"></canvas>
+
+<!-- Capa frontal con las tarjetas y paneles -->
+<div class="container-fluid px-0" style="position: relative; z-index: 1;">
+
+    <!-- Fila de Indicadores Clave (KPIs con enlace) -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Ventas -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{% url 'ventas_facturas' %}" class="text-decoration-none">
+                <div class="linear-card py-3" style="cursor: pointer;">
+                    <div class="kpi-label">Ventas Hoy</div>
+                    <div class="kpi-number">Gs. 0</div>
+                    <span class="tag-badge mt-1"><span class="tag-dot green"></span>0 confirmadas &rarr;</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- 2. Taller -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{% url 'servicios_taller' %}" class="text-decoration-none">
+                <div class="linear-card py-3" style="cursor: pointer;">
+                    <div class="kpi-label">Taller Activo</div>
+                    <div class="kpi-number">3 <span style="font-size: 0.8rem; color: var(--rfa-text-muted); font-weight: normal;">motos</span></div>
+                    <span class="tag-badge mt-1"><span class="tag-dot neutral"></span>En banco &rarr;</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- 3. Presupuestos -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{% url 'ventas_presupuestos' %}" class="text-decoration-none">
+                <div class="linear-card py-3" style="cursor: pointer;">
+                    <div class="kpi-label">Presupuestos</div>
+                    <div class="kpi-number">0</div>
+                    <span class="tag-badge mt-1"><span class="tag-dot orange"></span>Pendientes &rarr;</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- 4. Stock Crítico -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <a href="{% url 'compras_inventario' %}" class="text-decoration-none">
+                <div class="linear-card py-3" style="cursor: pointer;">
+                    <div class="kpi-label">Stock Crítico</div>
+                    <div class="kpi-number">0</div>
+                    <span class="tag-badge mt-1">Sin alertas &rarr;</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal de Flujo -->
+    <div class="row g-3">
+        <!-- Columna de Taller / Flujo de Trabajo -->
+        <div class="col-12 col-lg-8">
+            <div class="linear-card">
+                <div class="section-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-dot orange"></span>
+                        <h2 class="section-title">En Proceso / Taller y Servicios</h2>
+                    </div>
+                    <span class="tag-badge">3 activos</span>
+                </div>
+
+                <div class="d-flex flex-column">
+                    <a href="{% url 'servicios_taller' %}" class="issue-row">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="issue-id">TAL-104</span>
+                            <span class="issue-title">Yamaha MT-03 — Service completo + pastillas de freno</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="tag-badge"><span class="tag-dot orange"></span>Espera Repuesto</span>
+                            <span class="issue-id text-end">Hoy</span>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'servicios_taller' %}" class="issue-row">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="issue-id">TAL-103</span>
+                            <span class="issue-title">Honda CB190R — Cambio de kit de arrastre</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="tag-badge"><span class="tag-dot neutral"></span>En Banco</span>
+                            <span class="issue-id text-end">Ayer</span>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'servicios_taller' %}" class="issue-row">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="issue-id">TAL-102</span>
+                            <span class="issue-title">KTM Duke 200 — Ajuste de suspensión y fluidos</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="tag-badge"><span class="tag-dot green"></span>Listo Retiro</span>
+                            <span class="issue-id text-end">11 Sep</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="mt-3 pt-3 border-top" style="border-color: var(--rfa-border) !important;">
+                    <a href="{% url 'servicios_orden_crear' %}" class="issue-row text-secondary" style="border: 1px dashed var(--rfa-border); background: transparent;">
+                        <span>+ Registrar nuevo servicio o moto técnica en banco...</span>
+                        <span class="font-monospace text-light">Enter &rarr;</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Lateral de Accesos y Estado -->
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+            <div class="linear-card">
+                <div class="section-header">
+                    <h2 class="section-title">Accesos Rápidos</h2>
+                </div>
+                <div class="d-flex flex-column gap-1">
+                    <a href="{% url 'servicios_taller' %}" class="issue-row py-2">
+                        <span class="issue-title">Bandeja de Taller</span>
+                        <span class="font-monospace text-secondary" style="font-size: 0.75rem;">&rarr;</span>
+                    </a>
+                    <a href="{% url 'compras_ingreso_crear' %}" class="issue-row py-2">
+                        <span class="issue-title">Nueva Compra a Proveedor</span>
+                        <span class="font-monospace text-secondary" style="font-size: 0.75rem;">&rarr;</span>
+                    </a>
+                    <a href="{% url 'ventas_facturas' %}" class="issue-row py-2">
+                        <span class="issue-title">Nueva Venta Mostrador</span>
+                        <span class="font-monospace text-secondary" style="font-size: 0.75rem;">&rarr;</span>
+                    </a>
+                    <a href="{% url 'ventas_presupuestos' %}" class="issue-row py-2 text-decoration-none">
+                        <span class="issue-title">Generar Presupuesto</span>
+                        <span class="font-monospace text-secondary" style="font-size: 0.75rem;">&rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="linear-card">
+                <div class="section-header">
+                    <h2 class="section-title">Parámetros del Sistema</h2>
+                    <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace px-2 py-1" 
+                         style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 14px rgba(34, 197, 94, 0.2); line-height: 1;">
+                        <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 8px #22c55e; width: 6px; height: 6px; flex-shrink: 0;"></span>
+                        <span class="text-uppercase text-white fw-medium" style="font-size: 0.72rem; letter-spacing: 0.04em; white-space: nowrap;">
+                            {{ request.user.username|default:"Invitado" }}
+                        </span>
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-2" style="font-size: 0.775rem;">
+                    <div class="d-flex justify-content-between text-secondary">
+                        <span>Base de datos:</span>
+                        <span class="font-monospace text-light">SQLite (Conectado)</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-secondary">
+                        <span>Caja del día:</span>
+                        <span class="font-monospace text-light">Abierta</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-secondary">
+                        <span>Terminal:</span>
+                        <span class="font-monospace text-light">127.0.0.1:8000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const canvas = document.getElementById('networkCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const mouse = { x: null, y: null };
+    const mouseRadius = 180;
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    });
+
+    window.addEventListener('mouseleave', () => {
+        mouse.x = null;
+        mouse.y = null;
+    });
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        initGears();
+    });
+
+    function drawGearPath(ctx, x, y, radius, teeth, angle) {
+        const step = (Math.PI * 2) / teeth;
+        const toothDepth = radius * 0.16;
+        const innerRadius = radius - toothDepth;
+        const holeRadius = radius * 0.35;
+
+        ctx.beginPath();
+        for (let i = 0; i < teeth; i++) {
+            const a = angle + i * step;
+            const a1 = a + step * 0.22;
+            const a2 = a + step * 0.50;
+            const a3 = a + step * 0.72;
+            const a4 = a + step;
+
+            if (i === 0) {
+                ctx.moveTo(x + Math.cos(a) * innerRadius, y + Math.sin(a) * innerRadius);
+            } else {
+                ctx.lineTo(x + Math.cos(a) * innerRadius, y + Math.sin(a) * innerRadius);
+            }
+            ctx.lineTo(x + Math.cos(a1) * (radius + toothDepth * 0.3), y + Math.sin(a1) * (radius + toothDepth * 0.3));
+            ctx.lineTo(x + Math.cos(a2) * (radius + toothDepth * 0.3), y + Math.sin(a2) * (radius + toothDepth * 0.3));
+            ctx.lineTo(x + Math.cos(a3) * innerRadius, y + Math.sin(a3) * innerRadius);
+            ctx.lineTo(x + Math.cos(a4) * innerRadius, y + Math.sin(a4) * innerRadius);
+        }
+        ctx.closePath();
+
+        ctx.moveTo(x + holeRadius, y);
+        ctx.arc(x, y, holeRadius, 0, Math.PI * 2, true);
+    }
+
+    class Gear {
+        constructor(x, y, radius, teeth, speed) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.teeth = teeth;
+            this.speed = speed;
+            this.angle = Math.random() * Math.PI * 2;
+        }
+
+        update() {
+            this.angle += this.speed;
+        }
+
+        draw() {
+            let glowStrength = 0;
+            if (mouse.x !== null && mouse.y !== null) {
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < mouseRadius + this.radius) {
+                    glowStrength = Math.max(0, 1 - (dist / (mouseRadius + this.radius)));
+                }
+            }
+
+            ctx.save();
+            drawGearPath(ctx, this.x, this.y, this.radius, this.teeth, this.angle);
+
+            if (glowStrength > 0.05) {
+                ctx.strokeStyle = `rgba(255, 106, 43, ${0.25 + glowStrength * 0.75})`;
+                ctx.lineWidth = 1.2 + glowStrength * 1.0;
+                ctx.shadowColor = 'rgba(255, 106, 43, 0.9)';
+                ctx.shadowBlur = 10 * glowStrength;
+            } else {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+                ctx.lineWidth = 1.1;
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius * 0.12, 0, Math.PI * 2);
+            ctx.fillStyle = glowStrength > 0.05 
+                ? `rgba(255, 106, 43, ${0.4 + glowStrength * 0.5})` 
+                : 'rgba(255, 255, 255, 0.03)';
+            ctx.fill();
+
+            ctx.restore();
+        }
+    }
+
+    let gears = [];
+
+    function initGears() {
+        gears = [];
+        const count = Math.max(6, Math.floor((width * height) / 120000));
+        
+        for (let i = 0; i < count; i++) {
+            const radius = 35 + Math.random() * 55;
+            const teeth = Math.floor(radius / 4.5);
+            const x = Math.random() * width;
+            const y = Math.random() * height;
+            const speed = (Math.random() > 0.5 ? 1 : -1) * (0.002 + Math.random() * 0.003);
+            gears.push(new Gear(x, y, radius, teeth, speed));
+        }
+    }
+
+    initGears();
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < gears.length; i++) {
+            gears[i].update();
+            gears[i].draw();
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+})();
+</script>
+{% endblock %}

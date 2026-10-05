@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Nómina & Empleados — ADS // RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025) !important;
+        border: 1px solid var(--rfa-border) !important;
+        border-radius: var(--rfa-radius-sm);
+        color: #ffffff !important;
+        font-size: 0.78rem;
+        padding: 0.38rem 0.65rem;
+        outline: none;
+    }
+    .form-control-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.28) !important;
+    }
+    .form-label-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        line-height: 1;
+    }
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+    .btn-filter-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        background: transparent;
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text-secondary);
+        padding: 0.3rem 0.65rem;
+        border-radius: var(--rfa-radius-sm);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-filter-tech:hover {
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .status-pill {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.25rem 0.55rem;
+        border-radius: var(--rfa-radius-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 1px solid transparent;
+        line-height: 1;
+    }
+    .status-pill.activo {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.35);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-3">
+
+    <!-- CABECERA -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="tag-dot" style="background-color: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
+                <span class="font-monospace text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #7dd3fc;">
+                    ADS // RECURSOS HUMANOS & GESTIÓN DE NÓMINA
+                </span>
+            </div>
+            <h1 class="page-title mb-0" style="font-size: 1.25rem; font-weight: 600; color: #ffffff;">Personal & Recibos de Sueldo</h1>
+        </div>
+
+        <!-- Badge Técnico: Operador / Usuario Activo Calibrado -->
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace ms-auto" 
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;"></span>
+            <span class="text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">{{ tr_actual.creado_por.username|default:request.user.username }}</strong>
+            </span>
+        </div>
+
+            <a href="#" class="btn-action-accent">
+                <span>Registrar Empleado</span>
+                <span style="font-size: 0.85rem;">&rarr;</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- KPIS DE GESTIÓN -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">PERSONAL ACTIVO</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_activos }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot green"></span>Operativos en sistema</span>
+            </div>
+        </div>
+        <div class="col-12 col-sm-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">PLANILLA MENSUAL BASE</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">Gs. {{ total_planilla_mensual }}</div>
+                <span class="tag-badge font-monospace">Sueldos brutos estimados</span>
+            </div>
+        </div>
+        <div class="col-12 col-sm-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">TOTAL LEGAJOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_total }}</div>
+                <span class="tag-badge font-monospace">Directorio de colaboradores</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE EMPLEADOS -->
+    <div class="linear-card p-0" style="overflow: hidden;">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center gap-3" style="border-color: var(--rfa-border) !important;">
+            <span class="font-monospace text-secondary" style="font-size: 0.75rem;">NÓMINA DE COLABORADORES</span>
+            <div style="min-width: 250px;">
+                <input type="text" class="form-control-tech font-monospace" placeholder="Buscar por nombre, C.I., cargo...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-linear m-0 w-100 font-monospace" style="font-size: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th style="padding: 10px 14px; width: 60px;">#</th>
+                        <th>COLABORADOR</th>
+                        <th style="width: 110px;">C.I. N°</th>
+                        <th>CARGO / ROL</th>
+                        <th>ÁREA</th>
+                        <th style="width: 120px;">TELÉFONO</th>
+                        <th class="text-end" style="width: 120px;">SALARIO (Gs.)</th>
+                        <th class="text-center" style="width: 90px;">IPS</th>
+                        <th class="text-center" style="width: 100px;">ESTADO</th>
+                        <th class="text-center" style="width: 110px; padding-right: 14px;">RECIBO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in empleados %}
+                    <tr>
+                        <td style="padding: 10px 14px;" class="text-secondary">{{ e.id }}</td>
+                        <td>
+                            <strong class="text-white fw-medium">{{ e.nombre_completo }}</strong>
+                            <div class="text-secondary" style="font-size: 0.68rem;">Usuario: @{{ e.usuario_sistema }}</div>
+                        </td>
+                        <td class="text-secondary">{{ e.documento }}</td>
+                        <td class="text-light">{{ e.cargo }}</td>
+                        <td class="text-secondary">{{ e.departamento }}</td>
+                        <td class="text-secondary">{{ e.telefono }}</td>
+                        <td class="text-end text-white fw-semibold">{{ e.salario_base }}</td>
+                        <td class="text-center">
+                            {% if e.ips_inscripto %}
+                                <span class="text-success" style="font-size: 0.72rem;">&check; Activo</span>
+                            {% else %}
+                                <span class="text-secondary" style="font-size: 0.72rem;">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="status-pill activo"><span class="tag-dot" style="background: #22c55e;"></span>Activo</span>
+                        </td>
+                        <td class="text-center" style="padding-right: 14px;">
+                            <button type="button" class="btn-filter-tech py-0.5 px-2" title="Generar Recibo de Sueldo">
+                                🖨️ Recibo
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center py-4 text-secondary">No hay empleados registrados en nómina.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

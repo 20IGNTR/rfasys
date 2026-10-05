@@ -1,0 +1,350 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RFA&T/SYS{% endblock %}</title>
+
+    <!-- Bootstrap 5.3.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Fondo más oscuro y profundo (Darker Neutral) */
+            --rfa-bg: #0e0e0e;
+            --rfa-surface-glass: rgba(22, 22, 22, 0.65);
+            --rfa-surface-glass-hover: rgba(30, 30, 30, 0.8);
+            --rfa-border: rgba(255, 255, 255, 0.07);
+            --rfa-border-hover: rgba(255, 255, 255, 0.16);
+            --rfa-accent: #FF6A2B;
+            --rfa-accent-hover: #E85C22;
+            --rfa-text: #F3F3F3;
+            --rfa-text-secondary: #9E9E9E;
+            --rfa-text-muted: #616161;
+            --rfa-radius: 6px;
+            --rfa-radius-sm: 4px;
+        }
+
+        body {
+            background-color: var(--rfa-bg);
+            color: var(--rfa-text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            letter-spacing: -0.01em;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Navbar traslúcida neutra */
+        .rfa-navbar {
+            background-color: rgba(22, 22, 22, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--rfa-border);
+            padding: 0.65rem 1.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 0.925rem;
+            color: #ffffff !important;
+            letter-spacing: -0.02em;
+        }
+
+        /* Unifica la alineación vertical y el display para enlaces directos y disparadores */
+.nav-link-rfa {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--rfa-text-secondary);
+    text-decoration: none;
+    padding: 0.35rem 0.65rem;
+    border-radius: var(--rfa-radius-sm);
+    transition: all 0.12s ease;
+    display: inline-flex;
+    align-items: center;      /* Centrado vertical perfecto */
+    line-height: 1;           /* Evita desfases por altura de línea de fuente */
+    vertical-align: middle;
+}
+
+.nav-link-rfa:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link-rfa.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Alinea el contenedor dropdown con los demás links del navbar */
+nav .dropdown {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Centra y afina la flechita del desplegable */
+.dropdown-toggle::after {
+    vertical-align: middle;
+    margin-left: 0.4rem;
+    font-size: 0.75rem;
+    opacity: 0.6;
+}
+
+        .header-search {
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--rfa-border);
+            color: var(--rfa-text);
+            font-size: 0.775rem;
+            padding: 0.35rem 0.8rem;
+            border-radius: var(--rfa-radius-sm);
+            width: 210px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.15s ease;
+        }
+
+        .header-search:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.25);
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+        }
+
+        .main-wrapper {
+            flex: 1;
+            padding: 1.75rem;
+        }
+
+        /* Tarjeta frosted glass gris neutra */
+        .linear-card {
+            background-color: var(--rfa-surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--rfa-border);
+            border-radius: var(--rfa-radius);
+            padding: 1.25rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            transition: all 0.15s ease;
+        }
+        .linear-card:hover {
+            border-color: var(--rfa-border-hover);
+        }
+
+        .tag-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--rfa-radius-sm);
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--rfa-border);
+            color: var(--rfa-text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .tag-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .tag-dot.orange { background-color: var(--rfa-accent); }
+        .tag-dot.green { background-color: #22C55E; }
+        .tag-dot.neutral { background-color: #A3A3A3; }
+
+        /* Menú Desplegable con efecto frosted glass */
+.dropdown-menu-rfa {
+    background-color: rgba(24, 24, 24, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--rfa-border);
+    border-radius: var(--rfa-radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    padding: 0.35rem;
+    margin-top: 0.5rem !important;
+    min-width: 150px;
+}
+
+.dropdown-item-rfa {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.775rem;
+    color: var(--rfa-text-secondary);
+    padding: 0.45rem 0.75rem;
+    border-radius: var(--rfa-radius-sm);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.12s ease;
+}
+
+.dropdown-item-rfa:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Cuadro rojo reactivo al pasar sobre Cerrar Sesión */
+.btn-logout {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--rfa-text-secondary);
+    text-decoration: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--rfa-radius-sm);
+    border: 1px solid transparent;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-logout:hover {
+    color: #ff5c5c !important;
+    background-color: rgba(255, 59, 59, 0.08);
+    border-color: rgba(255, 59, 59, 0.35);
+    box-shadow: 0 0 12px rgba(255, 59, 59, 0.18);
+}
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <header class="rfa-navbar d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
+                <span style="width: 7px; height: 7px; background: var(--rfa-accent); border-radius: 50%;"></span>
+                RFA&T/SYS
+            </a>
+            <!-- Menú ADS (Administración y Tablas Maestras) -->
+        <nav class="d-none d-md-flex align-items-center gap-1">
+            <div class="dropdown">
+                <a class="nav-link-rfa dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;">
+                    ADS
+                </a>
+                <ul class="dropdown-menu dropdown-menu-rfa dropdown-menu-dark">
+                    <li>
+                        <a class="dropdown-item-rfa" href="{% url 'ads_proveedores' %}">
+                            <span>Proveedores</span>
+                            <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item-rfa" href="{% url 'ads_clientes' %}">
+                            <span>Clientes</span>
+                            <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item-rfa" href="{% url 'ads_empleados' %}">
+                            <span>Empleados</span>
+                            <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+               <!-- Menú desplegable Compras -->
+                <div class="dropdown">
+                    <a class="nav-link-rfa dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                        Compras
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-rfa dropdown-menu-dark">
+                        <li>
+                            <a class="dropdown-item-rfa" href="{% url 'compras_ingresos' %}">
+                                <span>Ingresos</span>
+                                <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item-rfa" href="{% url 'compras_inventario' %}">
+                                <span>Inventario</span>
+                                <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item-rfa" href="{% url 'compras_reembolsos' %}">
+                                <span>Reembolsos</span>
+                                <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Menú desplegable Ventas -->
+                <div class="dropdown">
+                    <a class="nav-link-rfa dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                        Ventas
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-rfa dropdown-menu-dark">
+                        <li>
+                            <a class="dropdown-item-rfa" href="{% url 'ventas_presupuestos' %}">
+                                <span>Presupuestos</span>
+                                <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item-rfa" href="{% url 'ventas_facturas' %}">
+                                <span>Facturas</span>
+                                <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                            </a>
+                            <li>
+                                <a class="dropdown-item-rfa" href="{% url 'ventas_remisiones' %}">
+                                    <span>Remisiones</span>
+                                    <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+                                </a>
+                            </li>
+                        </li>
+                    </ul>
+                </div>
+
+               <!-- Menú desplegable Servicios (Módulo Principal) -->
+<div class="dropdown">
+    <a class="nav-link-rfa dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+        Servicios
+    </a>
+    <ul class="dropdown-menu dropdown-menu-rfa dropdown-menu-dark">
+        <li>
+            <a class="dropdown-item-rfa" href="{% url 'servicios_taller' %}">
+                <span>Taller</span>
+                <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item-rfa" href="{% url 'servicios_detailing' %}">
+                <span>Detailing</span>
+                <span style="font-size: 0.65rem; color: var(--rfa-text-muted);">→</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+                <!-- Nuevas secciones individuales -->
+                <!-- Secciones directas independientes -->
+                <a href="{% url 'compras_transferencias' %}" class="nav-link-rfa">Transferencias</a>
+                <a href="{% url 'compras_historial' %}" class="nav-link-rfa">Historial</a>
+            </nav>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <input type="text" class="header-search d-none d-sm-block font-monospace" placeholder="Buscar">
+            <a href="{% url 'cerrar_sesion' %}" class="btn-logout">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- =====================================================
+     ENCABEZADO DEL MÓDULO
+     ===================================================== -->
+
+<div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
+
+    <div>
+
+        <div class="eyebrow">
+            Módulo
+        </div>
+
+        <h1 class="mb-0">
+            {% block modulo_titulo %}
+                Módulo
+            {% endblock %}
+        </h1>
+
+    </div>
+
+
+    <!-- Acción principal -->
+
+    <div>
+
+        {% block modulo_boton_accion %}
+
+            <a
+                href="#"
+                class="btn btn-acento"
+            >
+                + Agregar
+            </a>
+
+        {% endblock %}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CONTENIDO DEL MÓDULO
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-body p-4">
+
+        {% block modulo_contenido %}
+
+            <div class="py-4 text-center">
+
+                <p class="text-secondary mb-0">
+                    Contenido del módulo próximamente.
+                </p>
+
+            </div>
+
+        {% endblock %}
+
+    </div>
+
+</div>
+
+{% endblock %}

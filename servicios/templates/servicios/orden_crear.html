@@ -1,0 +1,896 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Orden de Trabajo — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-select-tech, .cell-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239E9E9E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.6rem center;
+        background-size: 12px;
+        padding-right: 2rem !important; 
+    }
+
+    .form-label-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .form-control-tech, .form-select-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--rfa-border);
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.8rem;
+        padding: 0.38rem 0.6rem;
+        transition: all 0.15s ease;
+    }
+
+    .form-control-tech:focus, .form-select-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .form-select-tech option {
+        background-color: #161616;
+        color: #ffffff;
+    }
+
+    .table-items {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .table-items th {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--rfa-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--rfa-border);
+        background-color: rgba(255, 255, 255, 0.01);
+        font-weight: 500;
+    }
+
+    .table-items td {
+        padding: 0.35rem 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+        vertical-align: middle;
+    }
+
+    .cell-input {
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.8rem;
+        padding: 0.3rem 0.5rem;
+        width: 100%;
+        transition: all 0.12s ease;
+    }
+
+    .cell-input:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .cell-input:focus {
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        outline: none;
+    }
+
+    .cell-select {
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.8rem;
+        padding: 0.3rem 0.4rem;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.12s ease;
+    }
+
+    .cell-select:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .cell-select:focus {
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        outline: none;
+    }
+
+    .cell-select option {
+        background-color: #161616;
+        color: #ffffff;
+    }
+
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+
+    .btn-action-ghost {
+        background-color: transparent;
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text-secondary);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: var(--rfa-radius-sm);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.15s ease;
+    }
+
+    .btn-action-ghost:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+
+    .btn-row-delete {
+        background: transparent;
+        border: none;
+        color: var(--rfa-text-muted);
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 0.2rem 0.4rem;
+        border-radius: var(--rfa-radius-sm);
+        transition: all 0.15s ease;
+    }
+
+    .btn-row-delete:hover {
+        color: #ff5c5c;
+        background-color: rgba(255, 59, 59, 0.08);
+    }
+
+    .req-dot {
+        display: inline-block;
+        width: 5px;
+        height: 5px;
+        background-color: var(--rfa-accent);
+        border-radius: 50%;
+        vertical-align: middle;
+        margin-left: 0.25rem;
+        position: relative;
+        top: -1px;
+    }
+    .campo-oculto {
+        display: none !important;
+    }
+    @media print {
+    /* 1. Ocultar menús, barras de navegación y botones */
+    nav, .navbar, .page-header, .no-print, .btn-action-ghost, .btn-action-accent, .btn-row-delete, #sidebar, footer {
+        display: none !important;
+    }
+
+    /* 2. Fondo blanco y texto negro de alto contraste */
+    body, .linear-card, .table-responsive, table {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border-color: #cccccc !important;
+        box-shadow: none !important;
+    }
+
+    /* 3. Inputs y selectores visibles como texto plano impreso */
+    input, select, textarea {
+        background: transparent !important;
+        color: #000000 !important;
+        border: 1px solid #e0e0e0 !important;
+        box-shadow: none !important;
+    }
+
+    .form-label-tech, .font-monospace {
+        color: #333333 !important;
+    }
+
+    .item-subtotal, #totalGeneral {
+        color: #000000 !important;
+        font-weight: bold !important;
+    }
+
+    /* Ajuste de página */
+    @page {
+        margin: 1.2cm;
+        size: auto;
+    }
+
+        .dropdown-clientes-flotante {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 260px;
+        max-height: 220px;
+        overflow-y: auto;
+        background-color: #1a1d23;
+        border: 1px solid var(--rfa-border);
+        border-radius: var(--rfa-radius-sm);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        z-index: 9999;
+    }
+
+    .item-cliente-sugerido {
+        padding: 0.45rem 0.65rem;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        transition: background 0.15s ease;
+    }
+
+    .item-cliente-sugerido:hover {
+        background-color: rgba(255, 106, 43, 0.15);
+    }
+
+    .item-cliente-nombre {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #ffffff;
+        display: block;
+    }
+
+    .item-cliente-detalle {
+        font-size: 0.68rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--rfa-text-secondary);
+    }
+}
+</style>
+{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<form method="POST" action="{% if es_edicion %}{% url 'servicios_orden_editar' orden.id %}{% else %}{% url 'servicios_orden_crear' %}{% endif %}" id="formOrden">
+    {% csrf_token %}
+
+    <!-- Marco Contenedor Principal (Panel 0) -->
+    <div class="linear-card mb-3 py-3 position-relative">
+        
+        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--rfa-border) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span class="tag-dot orange"></span>
+                <span class="font-monospace text-light" style="font-size: 0.75rem; font-weight: 500;">
+                    TALLER MECÁNICO // ORDEN DE SERVICIO &amp; DIAGNÓSTICO
+                </span>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 no-print">
+                {% if es_edicion %}
+                <!-- Botón de Imprimir separado a la izquierda -->
+                <button type="button" 
+                        onclick="window.print()" 
+                        class="tag-badge text-white py-1 px-3 d-inline-flex align-items-center gap-1" 
+                        style="background: transparent; border: 1px solid var(--rfa-border); cursor: pointer; margin-right: 250px;" 
+                        title="Imprimir Comprobante de Orden">
+                    <span>IMPRIMIR</span>
+                </button>
+                {% endif %}
+
+                <a href="{% url 'servicios_taller' %}" class="btn-action-ghost">Cancelar</a>
+                <button type="submit" class="btn-action-accent">
+                    <span>{% if es_edicion %}Actualizar Orden de Trabajo{% else %}Generar Orden de Trabajo{% endif %}</span>
+                    <span style="font-size: 0.85rem;">→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel 1: Datos Generales, Moto y Responsable -->
+        <div class="linear-card mb-3 py-3 position-relative">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--rfa-border) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="tag-dot orange"></span>
+                    <span class="font-monospace text-light" style="font-size: 0.75rem; font-weight: 500;">FICHA DE INGRESO</span>
+                </div>
+                <span class="tag-badge font-monospace">N° ORDEN: {{ orden.numero_orden|default:'AUTO' }}</span>
+            </div>
+
+            <!-- Fila Única con datos precargados -->
+<div class="row g-2 align-items-end mb-2 flex-nowrap overflow-x-auto pb-1">
+    <!-- 1. Cliente -->
+    <div class="col-auto position-relative" style="width: 190px;">
+        <label class="form-label-tech">Cliente<span class="req-dot"></span></label>
+        <input type="text" 
+               name="cliente_nombre" 
+               id="inputClienteNombre" 
+               class="form-control-tech" 
+               placeholder="Nombre &amp; Apellido" 
+               value="{{ orden.cliente_nombre|default:'' }}" 
+               list="datalist-clientes" 
+               oninput="autocompletarAlEscribir(this.value)"
+               autocomplete="off" 
+               required>
+        
+        <!-- Menú flotante desplegable invisible que no altera el ancho -->
+        <div id="dropdownClientes" class="dropdown-clientes-flotante" style="display: none;"></div>
+    </div>
+
+                <!-- 2. Teléfono -->
+                <div class="col-auto" style="width: 135px;">
+                    <label class="form-label-tech">Teléfono<span class="req-dot"></span></label>
+                    <input type="text" name="cliente_telefono" class="form-control-tech font-monospace" placeholder="0900-000-000" value="{{ orden.cliente_telefono|default:'' }}" required>
+                </div>
+
+                <!-- 3. Motocicleta -->
+                <div class="col-auto" style="width: 200px;">
+                    <label class="form-label-tech">Motocicleta<span class="req-dot"></span></label>
+                    <input type="text" class="form-control-tech font-monospace" name="moto_modelo" placeholder="Marca - Modelo - Año" value="{{ orden.moto_modelo|default:'' }}" required>
+                </div>
+
+                <!-- 4. Matrícula -->
+                <div class="col-auto" style="width: 110px;">
+                    <label class="form-label-tech">Matrícula<span class="req-dot"></span></label>
+                    <input type="text" name="moto_placa" class="form-control-tech font-monospace text-uppercase" placeholder="123-ABC" value="{{ orden.moto_placa|default:'' }}" required>
+                </div>
+
+                <!-- 5. Kilometraje -->
+                <div class="col-auto" style="width: 105px;">
+                    <label class="form-label-tech">Kilometraje</label>
+                    <input type="number" name="moto_kilometraje" class="form-control-tech font-monospace text-end" placeholder="18500" value="{{ orden.moto_kilometraje|default:'' }}">
+                </div>
+
+                <!-- 6. Mecánico Asignado -->
+                <div class="col-auto" style="width: 180px;">
+                    <label class="form-label-tech">Mecánico Asignado<span class="req-dot"></span></label>
+                    <select class="form-select-tech font-monospace" name="mecanico" required>
+                        <option disabled {% if not orden %}selected{% endif %} value="">Elegir mecánico...</option>
+                        {% for mec in mecanicos %}
+                            <option value="{{ mec.id }}" {% if orden.mecanico_id == mec.id or not orden and request.user.id == mec.id %}selected{% endif %}>
+                                {% if mec.first_name %}{{ mec.first_name }} {{ mec.last_name }}{% else %}@{{ mec.username }}{% endif %}
+                            </option>
+                        {% empty %}
+                            <option disabled>Sin empleados en sistema</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- 7. Estado Inicial -->
+                <div class="col-auto" style="width: 175px;">
+                    <label class="form-label-tech">Estado</label>
+                    <select class="form-select-tech font-monospace" name="estado">
+                        <option value="banco" {% if orden.estado == 'banco' %}selected{% endif %}>En Proceso</option>
+                        <option value="repuesto" {% if orden.estado == 'repuesto' %}selected{% endif %}>Pendiente</option>
+                        <option value="listo" {% if orden.estado == 'listo' or orden.estado == 'entregado' %}selected{% endif %}>Retirado</option>
+                    </select>
+                </div>
+
+                <!-- 8. Fecha de Entrega -->
+                <div class="col-auto" style="width: 140px;">
+                    <label class="form-label-tech">Fecha de Entrega</label>
+                    <input type="date" name="fecha_promesa" class="form-control-tech font-monospace" value="{{ orden.fecha_promesa|date:'Y-m-d'|default:'' }}">
+                </div>
+            </div>
+
+            <!-- Bloque de Auditoría y Trazabilidad -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-2 border-top font-monospace" 
+                 style="border-color: rgba(255,255,255,0.03) !important; font-size: 0.68rem; color: var(--rfa-text-muted); opacity: 0.85;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="tag-dot orange" style="width: 5px; height: 5px;"></span>
+                    <span>CREADO: <strong class="text-secondary fw-medium">@{{ orden.creado_por.username|default:request.user.username }}</strong> &bull; {% if orden.fecha_ingreso %}{{ orden.fecha_ingreso|date:"d/m/Y H:i" }}{% else %}{% now "d/m/Y H:i" %}{% endif %}</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="tag-dot orange" style="width: 5px; height: 5px;"></span>
+                    <span>MODIFICACIÓN: <span class="text-secondary">{% if orden and orden.modificado_por %}@{{ orden.modificado_por.username }} &bull; {{ orden.fecha_modificacion|date:"d/m/Y H:i" }}{% else %}--- (Sin ediciones){% endif %}</span></span>
+                </div>
+
+                <div class="d-none d-lg-block">
+                    <span class="d-inline-flex align-items-center gap-1">
+                        CAMPOS OBLIGATORIOS <span class="req-dot" style="margin-left: 0.1rem; margin-right: 0.25rem;"></span> | TALLER RFA&amp;T
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Detalle de Servicios, Mano de Obra y Repuestos -->
+        <div class="linear-card p-0 mb-3" style="overflow: hidden;">
+            <div class="p-3 d-flex justify-content-between align-items-center border-bottom" style="border-color: var(--rfa-border) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="tag-dot orange"></span>
+                    <span class="font-monospace text-light" style="font-size: 0.75rem; font-weight: 500;">REPUESTOS, PRODUCTOS Y MANO DE OBRA</span>
+                </div>
+                <button type="button" class="btn-action-ghost py-1 px-2" style="font-size: 0.7rem;" onclick="agregarFila()">+ Agregar Concepto</button>
+            </div>
+
+            <div class="table-responsive">
+    <table class="table-items" id="tablaDetalle">
+        <thead>
+            <tr>
+                <th style="width: 140px;">TIPO</th>
+                <th>DETALLE</th>
+                <th style="width: 150px;">DEPÓSITO</th> <!-- COLUMNA DEPÓSITO -->
+                <th style="width: 90px;" class="text-end">CANT.</th>
+                <th style="width: 130px;" class="text-end">PRECIO (Gs.)</th>
+                <th style="width: 135px;">MÉTODO PAGO</th>
+                <th style="width: 140px;" class="text-end">SUBTOTAL (Gs.)</th>
+                <th style="width: 35px;"></th>
+            </tr>
+        </thead>
+        <tbody id="itemsBody">
+            {% if detalles %}
+                {% for det in detalles %}
+                <tr>
+                    <!-- 1. Tipo -->
+                    <td>
+                        <select class="cell-select font-monospace item-tipo" name="tipos[]" onchange="alternarTipoItem(this)">
+                            <option value="repuesto" {% if det.tipo == 'repuesto' %}selected{% endif %}>Repuesto</option>
+                            <option value="producto" {% if det.tipo == 'producto' %}selected{% endif %}>Producto</option>
+                            <option value="servicio" {% if det.tipo == 'servicio' %}selected{% endif %}>Mano de Obra</option>
+                        </select>
+                    </td>
+
+                    <!-- 2. Detalle (Catálogo o Manual) -->
+                    <td>
+                        <div class="contenedor-concepto">
+                            <select class="cell-select item-articulo font-monospace {% if det.tipo == 'servicio' %}campo-oculto{% endif %}" name="articulos[]" onchange="seleccionarArticulo(this)" {% if det.tipo == 'servicio' %}style="display: none;" disabled{% endif %}>
+                                <option disabled value="" {% if not det.articulo %}selected{% endif %}>Seleccionar Artículo...</option>
+                                {% for art in articulos %}
+                                    <option value="{{ art.codigo }}" data-costo="{{ art.costo_referencia|floatformat:0|default:'0' }}" {% if det.articulo and det.articulo.codigo == art.codigo %}selected{% endif %}>
+                                        {{ art.nombre }}{% if art.presentacion %} ({{ art.presentacion }}){% endif %}
+                                    </option>
+                                {% empty %}
+                                    <option disabled>Sin repuestos en catálogo</option>
+                                {% endfor %}
+                            </select>
+
+                            <input type="text" class="cell-input font-monospace item-concepto {% if det.tipo != 'servicio' %}campo-oculto{% endif %}" name="conceptos[]" placeholder="Descripción servicio..." value="{{ det.concepto_manual|default:'' }}" {% if det.tipo != 'servicio' %}style="display: none;" disabled{% endif %}>
+                        </div>
+                    </td>
+
+                    <!-- 3. Depósito Salida (AGREGADO) -->
+                    <td>
+                        <select class="cell-select font-monospace item-deposito" name="depositos_item[]">
+                            {% for dep in depositos %}
+                                <option value="{{ dep.id }}" {% if orden.deposito_origen_id == dep.id or 'taller' in dep.nombre|lower %}selected{% endif %}>
+                                    {{ dep.nombre }}
+                                </option>
+                            {% empty %}
+                                <option disabled value="">Sin depósitos</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+
+                    <!-- 4. Cantidad -->
+                    <td>
+                        <input type="number" class="cell-input font-monospace text-end item-cantidad" name="cantidades[]" value="{{ det.cantidad|floatformat:0|default:'1' }}" min="1" oninput="calcularTotales()">
+                    </td>
+
+                    <!-- 5. Precio -->
+                    <td>
+                        <input type="number" class="cell-input font-monospace text-end item-precio" name="precios[]" value="{{ det.precio_unitario|floatformat:0|default:'0' }}" step="any" oninput="calcularTotales()">
+                    </td>
+
+                    <!-- 6. Método de Pago -->
+                    <td>
+                        <select class="cell-select font-monospace item-metodo" name="metodos_pago[]" onchange="calcularTotales()">
+                            <option value="efectivo" {% if det.metodo_pago == 'efectivo' %}selected{% endif %}>Efectivo</option>
+                            <option value="transferencia" {% if det.metodo_pago == 'transferencia' %}selected{% endif %}>Transferencia</option>
+                            <option value="tarjeta" {% if det.metodo_pago == 'tarjeta' %}selected{% endif %}>Tarjeta</option>
+                        </select>
+                    </td>
+
+                    <!-- 7. Subtotal -->
+                    <td class="font-monospace text-end fw-semibold item-subtotal" style="color: #ffffff; padding-right: 0.75rem;">
+                        {{ det.subtotal|floatformat:0|default:'0' }}
+                    </td>
+
+                    <!-- 8. Botón Eliminar -->
+                    <td class="text-center">
+                        <button type="button" class="btn-row-delete" onclick="eliminarFila(this)" title="Quitar">&times;</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <!-- Fila inicial para Orden Nueva -->
+                <tr>
+                    <!-- 1. Tipo -->
+                    <td>
+                        <select class="cell-select font-monospace item-tipo" name="tipos[]" onchange="alternarTipoItem(this)">
+                            <option value="repuesto" selected>Repuesto</option>
+                            <option value="producto">Producto</option>
+                            <option value="servicio">Mano de Obra</option>
+                        </select>
+                    </td>
+
+                    <!-- 2. Detalle -->
+                    <td>
+                        <div class="contenedor-concepto">
+                            <select class="cell-select item-articulo font-monospace" name="articulos[]" onchange="seleccionarArticulo(this)">
+                                <option selected disabled value="">Seleccionar Artículo...</option>
+                                {% for art in articulos %}
+                                    <option value="{{ art.codigo }}" data-costo="{{ art.costo_referencia|floatformat:0|default:'0' }}">
+                                        {{ art.nombre }}{% if art.presentacion %} ({{ art.presentacion }}){% endif %}
+                                    </option>
+                                {% empty %}
+                                    <option disabled>Sin repuestos en catálogo</option>
+                                {% endfor %}
+                            </select>
+
+                            <input type="text" class="cell-input font-monospace item-concepto campo-oculto" name="conceptos[]" placeholder="Descripción del servicio..." style="display: none;" disabled>
+                        </div>
+                    </td>
+
+                    <!-- 3. Depósito Salida (AGREGADO) -->
+                    <td>
+                        <select class="cell-select font-monospace item-deposito" name="depositos_item[]">
+                            {% for dep in depositos %}
+                                <option value="{{ dep.id }}" {% if 'taller' in dep.nombre|lower %}selected{% endif %}>
+                                    {{ dep.nombre }}
+                                </option>
+                            {% empty %}
+                                <option disabled value="">Sin depósitos</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+
+                    <!-- 4. Cantidad -->
+                    <td>
+                        <input type="number" class="cell-input font-monospace text-end item-cantidad" name="cantidades[]" value="1" min="1" oninput="calcularTotales()">
+                    </td>
+
+                    <!-- 5. Precio -->
+                    <td>
+                        <input type="number" class="cell-input font-monospace text-end item-precio" name="precios[]" value="0" step="any" oninput="calcularTotales()">
+                    </td>
+
+                    <!-- 6. Método de Pago -->
+                    <td>
+                        <select class="cell-select font-monospace item-metodo" name="metodos_pago[]" onchange="calcularTotales()">
+                            <option value="efectivo" selected>Efectivo</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="tarjeta">Tarjeta</option>
+                        </select>
+                    </td>
+
+                    <!-- 7. Subtotal -->
+                    <td class="font-monospace text-end fw-semibold item-subtotal" style="color: #ffffff; padding-right: 0.75rem;">
+                        0
+                    </td>
+
+                    <!-- 8. Botón Eliminar -->
+                    <td class="text-center">
+                        <button type="button" class="btn-row-delete" onclick="eliminarFila(this)" title="Quitar">&times;</button>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+            <!-- Resumen de Liquidación por Método de Pago -->
+            <div class="p-3 border-top" style="border-color: var(--rfa-border) !important; background-color: rgba(255, 255, 255, 0.01);">
+                <div class="row align-items-center">
+                    <div class="col-12 col-md-7 d-flex flex-wrap gap-3 font-monospace text-secondary" style="font-size: 0.72rem;">
+                        <span>Efectivo: <strong class="text-light fw-normal" id="totalEfectivo">Gs. 0</strong></span>
+                        <span class="text-muted">|</span>
+                        <span>Transferencia: <strong class="text-light fw-normal" id="totalTransferencia">Gs. 0</strong></span>
+                        <span class="text-muted">|</span>
+                        <span>Tarjeta: <strong class="text-light fw-normal" id="totalTarjeta">Gs. 0</strong></span>
+                    </div>
+                    <div class="col-12 col-md-5 d-flex justify-content-md-end align-items-baseline gap-3 mt-2 mt-md-0">
+                        <div class="font-monospace">
+                            <span class="text-secondary" style="font-size: 0.75rem;">PRESUPUESTO TOTAL: </span>
+                            <strong class="text-white fw-bold" style="font-size: 1.15rem;" id="totalGeneral">Gs. 0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 3: Diagnóstico de Ingreso y Trabajo Solicitado -->
+        <div class="linear-card py-3">
+            <label class="form-label-tech">Motivo de Ingreso</label>
+            <textarea class="form-control-tech font-monospace mb-2" name="motivo_ingreso" rows="2" placeholder="Describir mantenimiento  o trabajos realizados..." style="font-size: 0.78rem;" required>{{ orden.motivo_ingreso|default:'' }}</textarea>
+            
+            <label class="form-label-tech">Observaciones</label>
+            <textarea class="form-control-tech font-monospace" name="observaciones_vehiculo" rows="2" placeholder="Describir detalles a tener en cuenta, etc." style="font-size: 0.78rem;">{{ orden.observaciones_vehiculo|default:'' }}</textarea>
+        </div>
+
+    </div>
+    <!-- Lista de sugerencias nativa del navegador -->
+        <datalist id="datalist-clientes">
+            {% for cl in clientes_recurrentes %}
+                <option value="{{ cl.nombre }}"></option>
+            {% endfor %}
+        </datalist>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+{{ articulos_json|json_script:"articulos-data" }}
+{{ clientes_json|json_script:"clientes-data" }}
+{{ clientes_json|json_script:"clientes-json-db" }}
+
+<script>
+    function autocompletarAlEscribir(texto) {
+        if (!texto) return;
+
+        const dataNode = document.getElementById('clientes-json-db');
+        const listaClientes = dataNode ? JSON.parse(dataNode.textContent || '[]') : [];
+
+        // Búsqueda flexible sin importar mayúsculas o espacios extra
+        const cliente = listaClientes.find(c => c.nombre.trim().toLowerCase() === texto.trim().toLowerCase());
+
+        if (cliente) {
+            // 1. Teléfono
+            const inputTel = document.querySelector('[name="cliente_telefono"]');
+            if (inputTel && cliente.telefono) inputTel.value = cliente.telefono;
+
+            // 2. Chapa / Matrícula
+            const inputPlaca = document.querySelector('[name="moto_placa"]');
+            if (inputPlaca && cliente.placa) inputPlaca.value = cliente.placa;
+
+            // 3. Motocicleta (compatible con input de texto o select desplegable)
+            const inputMoto = document.querySelector('[name="moto_modelo"]');
+            if (inputMoto && cliente.moto) {
+                inputMoto.value = cliente.moto;
+                // Si fuera un select y no tiene ese valor exacto, dispara el cambio
+                if (inputMoto.tagName === 'SELECT') {
+                    inputMoto.dispatchEvent(new Event('change'));
+                }
+            }
+        }
+    }
+</script>
+
+<script>
+    const CLIENTES_CATALOGO = JSON.parse(document.getElementById('clientes-data').textContent || '[]');
+
+    function autocompletarCliente(nombreIngresado) {
+        // Busca si el texto escrito coincide con algún cliente registrado
+        const cliente = CLIENTES_CATALOGO.find(c => c.nombre.trim().toLowerCase() === nombreIngresado.trim().toLowerCase());
+        
+        if (cliente) {
+            const inputTel = document.querySelector('input[name="cliente_telefono"]');
+            const inputMoto = document.querySelector('input[name="moto_modelo"]');
+            const inputPlaca = document.querySelector('input[name="moto_placa"]');
+
+            if (inputTel && cliente.telefono) inputTel.value = cliente.telefono;
+            if (inputMoto && cliente.moto) inputMoto.value = cliente.moto;
+            if (inputPlaca && cliente.placa) inputPlaca.value = cliente.placa;
+        }
+    }
+</script>
+
+
+
+<script>
+    
+    const scriptArticulos = document.getElementById('articulos-data');
+    const CATALOGO_REPUESTOS = scriptArticulos ? JSON.parse(scriptArticulos.textContent) : [];
+
+    function generarOpcionesArticulos() {
+        if (!CATALOGO_REPUESTOS || CATALOGO_REPUESTOS.length === 0) {
+            return '<option disabled>Sin repuestos en catálogo</option>';
+        }
+        let html = '<option selected disabled value="">Seleccionar Articulo...</option>';
+        CATALOGO_REPUESTOS.forEach(art => {
+            html += `<option value="${art.codigo}" data-costo="${art.costo}">${art.nombre}</option>`;
+        });
+        return html;
+    }
+
+    function alternarTipoItem(selectElem) {
+        const fila = selectElem.closest('tr');
+        const esServicio = selectElem.value === 'servicio';
+        
+        const selectArticulo = fila.querySelector('.item-articulo');
+        const inputConcepto = fila.querySelector('.item-concepto');
+        const selectDeposito = fila.querySelector('.item-deposito');
+
+        if (selectArticulo && inputConcepto) {
+            if (esServicio) {
+                selectArticulo.style.display = 'none';
+                selectArticulo.disabled = true;
+                inputConcepto.style.display = 'block';
+                inputConcepto.disabled = false;
+                inputConcepto.focus();
+                if (selectDeposito) {
+                    selectDeposito.disabled = true;
+                    selectDeposito.style.opacity = '0.3';
+                }
+            } else {
+                selectArticulo.style.display = 'block';
+                selectArticulo.disabled = false;
+                inputConcepto.style.display = 'none';
+                inputConcepto.disabled = true;
+                if (selectDeposito) {
+                    selectDeposito.disabled = false;
+                    selectDeposito.style.opacity = '1';
+                }
+            }
+        }
+        calcularTotales();
+    }
+
+    function seleccionarArticulo(selectElem) {
+        const selectedOption = selectElem.options[selectElem.selectedIndex];
+        const costoRef = selectedOption ? (selectedOption.getAttribute('data-costo') || 0) : 0;
+        const fila = selectElem.closest('tr');
+        const precioInput = fila.querySelector('.item-precio');
+        
+        if (!precioInput.value || precioInput.value === "0") {
+            precioInput.value = costoRef;
+        }
+        calcularTotales();
+    }
+
+    // 2. Cálculo estricto de subtotales y división por método de pago (Gs. limpios)
+    function calcularTotales() {
+        let totalEfectivo = 0;
+        let totalTransferencia = 0;
+        let totalTarjeta = 0;
+        let totalPresupuesto = 0;
+
+        const filas = document.querySelectorAll('#itemsBody tr');
+        filas.forEach(fila => {
+            const cantInput = fila.querySelector('.item-cantidad');
+            const precioInput = fila.querySelector('.item-precio');
+            const metodoInput = fila.querySelector('.item-metodo');
+            const subtotalLabel = fila.querySelector('.item-subtotal');
+
+            if (!cantInput || !precioInput) return;
+
+            const cant = parseFloat(cantInput.value) || 0;
+            const precio = parseFloat(precioInput.value) || 0;
+            const subtotal = cant * precio;
+
+            if (subtotalLabel) {
+                subtotalLabel.innerText = Math.round(subtotal).toLocaleString('es-PY');
+            }
+
+            totalPresupuesto += subtotal;
+
+            const metodo = metodoInput ? metodoInput.value : 'efectivo';
+            if (metodo === 'efectivo') totalEfectivo += subtotal;
+            else if (metodo === 'transferencia') totalTransferencia += subtotal;
+            else if (metodo === 'tarjeta') totalTarjeta += subtotal;
+        });
+
+        // Actualizar etiquetas inferiores
+        const elTotal = document.getElementById('totalGeneral');
+        if (elTotal) elTotal.innerText = `Gs. ${Math.round(totalPresupuesto).toLocaleString('es-PY')}`;
+
+        const elEf = document.getElementById('resumenEfectivo');
+        if (elEf) elEf.innerText = `Gs. ${Math.round(totalEfectivo).toLocaleString('es-PY')}`;
+
+        const elTr = document.getElementById('resumenTransferencia');
+        if (elTr) elTr.innerText = `Gs. ${Math.round(totalTransferencia).toLocaleString('es-PY')}`;
+
+        const elTa = document.getElementById('resumenTarjeta');
+        if (elTa) elTa.innerText = `Gs. ${Math.round(totalTarjeta).toLocaleString('es-PY')}`;
+    }
+
+    function agregarFila() {
+        const tbody = document.getElementById('itemsBody');
+        const primeraFila = tbody.querySelector('tr');
+
+        // Extraer las opciones HTML ya renderizadas en la primera fila
+        let depOptions = '<option value="">Sin depósito</option>';
+        let artOptions = '<option selected disabled value="">Seleccionar Artículo...</option>';
+
+        if (primeraFila) {
+            const selectDep = primeraFila.querySelector('.item-deposito');
+            const selectArt = primeraFila.querySelector('.item-articulo');
+            if (selectDep) depOptions = selectDep.innerHTML;
+            if (selectArt) artOptions = selectArt.innerHTML;
+        }
+
+        const nuevaFila = document.createElement('tr');
+
+        // Estructura exacta de 8 columnas alineadas
+        nuevaFila.innerHTML = `
+            <!-- 1. TIPO -->
+            <td style="width: 140px;">
+                <select class="cell-select font-monospace item-tipo" name="tipos[]" onchange="alternarTipoItem(this)">
+                    <option value="repuesto" selected>Repuesto</option>
+                    <option value="producto">Producto</option>
+                    <option value="servicio">Mano de Obra</option>
+                </select>
+            </td>
+
+            <!-- 2. DETALLE -->
+            <td>
+                <div class="contenedor-concepto">
+                    <select class="cell-select item-articulo font-monospace" name="articulos[]" onchange="seleccionarArticulo(this)">
+                        ${artOptions}
+                    </select>
+                    <input type="text" class="cell-input font-monospace item-concepto" name="conceptos[]" placeholder="Descripción servicio / tarea..." style="display: none;" disabled>
+                </div>
+            </td>
+
+            <!-- 3. DEPÓSITO -->
+            <td style="width: 140px;">
+                <select class="cell-select font-monospace item-deposito" name="depositos_item[]">
+                    ${depOptions}
+                </select>
+            </td>
+
+            <!-- 4. CANTIDAD -->
+            <td style="width: 90px;">
+                <input type="number" class="cell-input font-monospace text-end item-cantidad" name="cantidades[]" value="1" min="1" oninput="calcularTotales()">
+            </td>
+
+            <!-- 5. PRECIO -->
+            <td style="width: 130px;">
+                <input type="number" class="cell-input font-monospace text-end item-precio" name="precios[]" value="0" step="any" oninput="calcularTotales()">
+            </td>
+
+            <!-- 6. MÉTODO PAGO -->
+            <td style="width: 135px;">
+                <select class="cell-select font-monospace item-metodo" name="metodos_pago[]" onchange="calcularTotales()">
+                    <option value="efectivo" selected>Efectivo</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="tarjeta">Tarjeta</option>
+                </select>
+            </td>
+
+            <!-- 7. SUBTOTAL -->
+            <td class="font-monospace text-end fw-semibold item-subtotal" style="width: 140px; color: #ffffff; padding-right: 0.75rem;">
+                0
+            </td>
+
+            <!-- 8. ELIMINAR -->
+            <td class="text-center" style="width: 35px;">
+                <button type="button" class="btn-row-delete" onclick="eliminarFila(this)" title="Quitar">&times;</button>
+            </td>
+        `;
+
+        tbody.appendChild(nuevaFila);
+        calcularTotales();
+    }
+
+    function eliminarFila(btn) {
+        const filas = document.querySelectorAll('#tablaDetalle tbody tr');
+        if (filas.length > 1) {
+            btn.closest('tr').remove();
+            calcularTotales();
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        calcularTotales();
+    });
+</script>
+
+
+{% endblock %}
+

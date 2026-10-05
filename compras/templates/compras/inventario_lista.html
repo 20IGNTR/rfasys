@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario General por Depósito — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    /* Buscador interactivo */
+    .filter-search {
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--rfa-border);
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.775rem;
+        padding: 0.38rem 0.85rem;
+        width: 320px;
+        transition: all 0.15s ease;
+    }
+
+    .filter-search:focus {
+        outline: none;
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+        box-shadow: 0 0 10px rgba(255, 106, 43, 0.1);
+    }
+
+    /* Botones de acción rápida */
+    .btn-toggle-view {
+        background: transparent;
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text-secondary);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: var(--rfa-radius-sm);
+        transition: all 0.15s ease;
+        cursor: pointer;
+    }
+
+    .btn-toggle-view:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Tarjetas de Depósito Desplegables */
+    .deposito-card {
+        background-color: var(--rfa-surface-glass);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--rfa-border);
+        border-radius: var(--rfa-radius);
+        margin-bottom: 0.85rem;
+        overflow: hidden;
+        transition: border-color 0.15s ease;
+    }
+
+    .deposito-card:hover {
+        border-color: var(--rfa-border-hover);
+    }
+
+    /* Cabecera del Acordeón */
+    .deposito-header {
+        padding: 0.85rem 1.15rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        background-color: rgba(255, 255, 255, 0.015);
+        transition: background-color 0.15s ease;
+    }
+
+    .deposito-header:hover {
+        background-color: rgba(255, 255, 255, 0.035);
+    }
+
+    .deposito-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #ffffff;
+        letter-spacing: -0.01em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .deposito-chevron {
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        color: var(--rfa-text-muted);
+        display: inline-flex;
+    }
+
+    .deposito-card.collapsed .deposito-chevron {
+        transform: rotate(-90deg);
+    }
+
+    .deposito-card.collapsed .deposito-body {
+        display: none;
+    }
+
+    /* Tabla de artículos interna */
+    .table-inventory {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .table-inventory th {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.67rem;
+        color: var(--rfa-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.65rem 1rem;
+        border-top: 1px solid var(--rfa-border);
+        border-bottom: 1px solid var(--rfa-border);
+        background-color: rgba(0, 0, 0, 0.2);
+        font-weight: 500;
+    }
+
+    .table-inventory td {
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        font-size: 0.79rem;
+        vertical-align: middle;
+    }
+
+    .table-inventory tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table-inventory tbody tr:hover td {
+        background-color: rgba(255, 255, 255, 0.025);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Cabecera de Página -->
+    <div class="page-header">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="tag-dot orange"></span>
+                <span class="font-monospace text-secondary" style="font-size: 0.7rem;">COMPRAS // CONTROL DE EXISTENCIAS POR UBICACIÓN</span>
+            </div>
+            <h1 class="page-title">Inventario General de Artículos</h1>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn-toggle-view" onclick="toggleTodos(false)">+ Expandir Todo</button>
+            <button type="button" class="btn-toggle-view" onclick="toggleTodos(true)">— Colapsar Todo</button>
+        </div>
+    </div>
+
+
+<!-- Indicadores Clave de Inventario -->
+<div class="row g-3 mb-4 align-items-center">
+
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="linear-card py-3">
+            <span class="form-label-tech">CATÁLOGO ACTIVO</span>
+            <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">
+                {{ total_items }}
+            </div>
+            <span class="tag-badge font-monospace">
+                <span class="tag-dot green"></span>
+                Artículos registrados
+            </span>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="linear-card py-3">
+            <span class="form-label-tech">UNIDADES EN DEPÓSITOS</span>
+            <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">
+                {{ unidades_totales|floatformat:0 }}
+            </div>
+            <span class="tag-badge font-monospace">
+                <span class="tag-dot neutral"></span>
+                Stock total disponible
+            </span>
+        </div>
+    </div>
+
+    <!-- Usuario activo -->
+    <div class="col-12 col-lg-auto ms-lg-auto position-relative" style="top: -60px;">
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace"
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot"
+                style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;">
+            </span>
+            <span class="text-uppercase"
+                style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">
+                    {{ tr_actual.creado_por.username|default:request.user.username }}
+                </strong>
+            </span>
+        </div>
+    </div>
+</div>
+
+    <!-- Panel de Búsqueda -->
+    <div class="linear-card p-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-2">
+            <span class="tag-dot orange"></span>
+            <span class="font-monospace text-secondary" style="font-size: 0.75rem; letter-spacing: 0.04em;">VISTA POR DEPÓSITO</span>
+        </div>
+        <div class="position-relative">
+            <input type="text" id="buscarArticulo" onkeyup="filtrarInventario()" class="filter-search font-monospace" placeholder="Buscar por código SKU, descripción...">
+        </div>
+    </div>
+
+    <!-- Contenedor de Depósitos Acordeonados -->
+    <div id="contenedorDepositos">
+        {% for data in depositos_data %}
+        <div class="deposito-card collapsed">
+            <!-- Título desplegable del Depósito -->
+            <div class="deposito-header" onclick="toggleDeposito(this)">
+                <div class="deposito-title">
+                    <span class="tag-dot orange"></span>
+                    <span>{{ data.deposito.nombre|upper }}</span>
+                    <span class="tag-badge font-monospace ms-2" style="font-size: 0.65rem;">
+                        {{ data.total_items }} ítems
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="font-monospace text-secondary d-none d-sm-inline" style="font-size: 0.7rem;">Click para alternar</span>
+                    <span class="deposito-chevron">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tabla de Artículos -->
+            <div class="deposito-body">
+                <div class="table-responsive">
+                    <table class="table-inventory">
+                        <thead>
+                            <tr>
+                                <th style="width: 150px;">CÓDIGO SKU</th>
+                                <th>DESCRIPCIÓN</th>
+                                <th style="width: 140px;">PRESENTACIÓN</th>
+                                <th class="text-end" style="width: 150px;">COSTO REF.</th>
+                                <th class="text-end" style="width: 150px;">STOCK ACTUAL</th>
+                                <th class="text-center" style="width: 130px;">ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in data.items %}
+                            <tr class="item-row">
+                                <td class="font-monospace text-secondary">
+                                    {{ item.codigo }}
+                                </td>
+                                <td class="fw-semibold text-white">
+                                    {{ item.nombre }}
+                                </td>
+                                <td class="font-monospace text-secondary">
+                                    {{ item.presentacion|default:"---" }}
+                                </td>
+                                <td class="font-monospace text-end text-white">
+                                    Gs. {{ item.costo_referencia|floatformat:0 }}
+                                </td>
+                                <td class="font-monospace fw-bold text-end text-white">
+                                    {{ item.cantidad|floatformat:0 }} uds.
+                                </td>
+                                <td class="text-center">
+                                    {% if item.cantidad > 0 %}
+                                        <span class="tag-badge font-monospace" style="color: #4ade80; border-color: rgba(74, 222, 128, 0.2);">
+                                            <span class="tag-dot green"></span>Con Stock
+                                        </span>
+                                    {% else %}
+                                        <span class="tag-badge font-monospace" style="color: var(--rfa-text-muted); border-color: rgba(255, 255, 255, 0.08);">
+                                            <span class="tag-dot neutral"></span>Sin Stock
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-secondary font-monospace" style="font-size: 0.78rem;">
+                                    No hay artículos registrados en el catálogo.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="linear-card py-5 text-center">
+            <span class="font-monospace text-secondary" style="font-size: 0.825rem;">
+                No hay depósitos registrados en el sistema.
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Colapsar o expandir un depósito individual
+    function toggleDeposito(headerElem) {
+        const card = headerElem.closest('.deposito-card');
+        card.classList.toggle('collapsed');
+    }
+
+    // Expandir o colapsar todos los depósitos
+    function toggleTodos(colapsar) {
+        const cards = document.querySelectorAll('.deposito-card');
+        cards.forEach(card => {
+            if (colapsar) {
+                card.classList.add('collapsed');
+            } else {
+                card.classList.remove('collapsed');
+            }
+        });
+    }
+
+    // Buscador interactivo en vivo con auto-despliegue del depósito correspondiente
+    function filtrarInventario() {
+        const input = document.getElementById('buscarArticulo');
+        const filter = input.value.trim().toUpperCase();
+        const depositoCards = document.querySelectorAll('.deposito-card');
+
+        depositoCards.forEach(card => {
+            const filas = card.querySelectorAll('.item-row');
+            let coincidencias = 0;
+
+            filas.forEach(fila => {
+                const texto = fila.textContent || fila.innerText;
+                if (texto.toUpperCase().indexOf(filter) > -1) {
+                    fila.style.display = '';
+                    coincidencias++;
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+
+            if (filter !== '') {
+                if (coincidencias > 0) {
+                    card.style.display = '';
+                    card.classList.remove('collapsed'); // Abre el depósito si contiene el artículo buscado
+                } else {
+                    card.style.display = 'none';
+                }
+            } else {
+                card.style.display = '';
+                filas.forEach(f => f.style.display = '');
+            }
+        });
+    }
+</script>
+{% endblock %}

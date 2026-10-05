@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}Presupuestos — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025) !important;
+        border: 1px solid var(--rfa-border) !important;
+        border-radius: var(--rfa-radius-sm);
+        color: #ffffff !important;
+        font-size: 0.78rem;
+        padding: 0.38rem 0.65rem;
+        outline: none;
+    }
+    .form-control-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.28) !important;
+    }
+    .form-label-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        line-height: 1;
+    }
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+    .btn-filter-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        background: transparent;
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text-secondary);
+        padding: 0.3rem 0.65rem;
+        border-radius: var(--rfa-radius-sm);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-filter-tech:hover, .btn-filter-tech.active {
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .status-pill {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.28rem 0.55rem;
+        border-radius: var(--rfa-radius-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border: 1px solid transparent;
+        line-height: 1;
+    }
+    .status-pill.pendiente {
+        color: #fde047;
+        background: rgba(234, 179, 8, 0.08);
+        border-color: rgba(234, 179, 8, 0.35);
+    }
+    .status-pill.aprobado {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.35);
+    }
+    .status-pill.vencido {
+        color: #fca5a5;
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.35);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-3">
+
+    <!-- CABECERA PRINCIPAL -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="tag-dot" style="background-color: #f97316; box-shadow: 0 0 8px #f97316;"></span>
+                <span class="font-monospace text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #fdba74;">
+                    VENTAS // COTIZACIONES & PRECIOS
+                </span>
+            </div>
+            <h1 class="page-title mb-0" style="font-size: 1.25rem; font-weight: 600; color: #ffffff;">Presupuestos Comerciales</h1>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 ms-auto">
+            <!-- Badge Técnico: Operador / Usuario Activo Calibrado -->
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace ms-auto" 
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;"></span>
+            <span class="text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">{{ tr_actual.creado_por.username|default:request.user.username }}</strong>
+            </span>
+        </div>
+
+            <!-- Botón Nuevo Presupuesto -->
+            <a href="#" class="btn-action-accent">
+                <span>Nuevo Presupuesto</span>
+                <span style="font-size: 0.85rem;">&rarr;</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE KPIS SUPERIORES -->
+    <div class="row g-3 mb-4">
+        <!-- 1. En Evaluación / Pendientes -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">COTIZACIONES PENDIENTES</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_pendientes }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #facc15;"></span>En espera de respuesta</span>
+            </div>
+        </div>
+
+        <!-- 2. Aprobados para Facturar -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">PRESUPUESTOS APROBADOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_aprobados }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #4ade80;"></span>Listos para facturación</span>
+            </div>
+        </div>
+
+        <!-- 3. Vencidos / Rechazados -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">VENCIDOS / DESESTIMADOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_vencidos }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #f87171;"></span>Plazo expirado</span>
+            </div>
+        </div>
+
+        <!-- 4. Total Histórico -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">TOTAL EMITIDOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_total }}</div>
+                <span class="tag-badge font-monospace">Cotizaciones del período</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANDEJA DE PRESUPUESTOS -->
+    <div class="linear-card p-0" style="overflow: hidden;">
+        <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3" style="border-color: var(--rfa-border) !important;">
+            <!-- Filtros rápidos -->
+            <div class="d-flex flex-wrap align-items-center gap-1.5">
+                <button type="button" class="btn-filter-tech active">Todos ({{ cant_total }})</button>
+                <button type="button" class="btn-filter-tech">Pendientes</button>
+                <button type="button" class="btn-filter-tech">Aprobados</button>
+                <button type="button" class="btn-filter-tech">Vencidos</button>
+            </div>
+
+            <!-- Buscador reactivo -->
+            <div style="min-width: 250px;">
+                <input type="text" class="form-control-tech font-monospace" placeholder="Buscar por cliente, N°, RUC...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-linear m-0 w-100 font-monospace" style="font-size: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th style="padding: 10px 14px; width: 110px;">N° PRES.</th>
+                        <th>CLIENTE</th>
+                        <th style="width: 120px;">DOCUMENTO / RUC</th>
+                        <th style="width: 100px;">EMISIÓN</th>
+                        <th style="width: 100px;">VALIDEZ</th>
+                        <th>RESUMEN DE PRODUCTOS / SERVICIOS</th>
+                        <th class="text-center" style="width: 120px;">TOTAL (Gs.)</th>
+                        <th>EMITIDO</th>
+                        <th class="text-center" style="width: 130px;">ESTADO</th>
+                        <th class="text-center" style="width: 70px; padding-right: 14px;">ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in presupuestos %}
+                    <tr style="cursor: pointer;">
+                        <!-- N° PRESUPUESTO -->
+                        <td style="padding: 10px 14px;">
+                            <span class="d-inline-flex px-1.5 py-0.5" style="color: #fdba74; background: rgba(249, 115, 22, 0.08); border: 1px solid rgba(249, 115, 22, 0.35); border-radius: var(--rfa-radius-sm);">
+                                #PR-{{ p.numero }}
+                            </span>
+                        </td>
+
+                        <!-- CLIENTE -->
+                        <td>
+                            <strong class="text-white fw-medium">{{ p.cliente }}</strong>
+                        </td>
+
+                        <!-- DOCUMENTO -->
+                        <td class="text-secondary">{{ p.documento }}</td>
+
+                        <!-- FECHA -->
+                        <td class="text-secondary">{{ p.fecha }}</td>
+
+                        <!-- VALIDEZ -->
+                        <td class="text-secondary">{{ p.validez }}</td>
+
+                        <!-- RESUMEN -->
+                        <td class="text-light" style="font-size: 0.72rem;">{{ p.items_resumen }}</td>
+
+                        <!-- TOTAL -->
+                        <td class="text-center text-white fw-semibold">{{ p.total }}</td>
+
+                        <!-- OPERADOR -->
+                        <td class="text-secondary">@{{ p.operador }}</td>
+
+                        <!-- ESTADO -->
+                        <td class="text-center">
+                            {% if p.estado == 'pendiente' %}
+                                <span class="status-pill pendiente">
+                                    <span class="tag-dot" style="background: #facc15;"></span>Pendiente
+                                </span>
+                            {% elif p.estado == 'aprobado' %}
+                                <span class="status-pill aprobado">
+                                    <span class="tag-dot" style="background: #4ade80;"></span>Aprobado
+                                </span>
+                            {% else %}
+                                <span class="status-pill vencido">
+                                    <span class="tag-dot" style="background: #f87171;"></span>Vencido
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- ACCIÓN RÁPIDA: CONVERTIR A VENTA / FACTURA -->
+                        <td class="text-center" style="padding-right: 14px;">
+                            {% if p.estado == 'aprobado' %}
+                                <a href="#" class="d-inline-flex align-items-center gap-1 px-2 py-0.5 text-decoration-none" 
+                                   style="color: #86efac; background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); font-size: 0.68rem;"
+                                   title="Facturar venta directa">
+                                    <span>Facturar</span>
+                                    <span>&rarr;</span>
+                                </a>
+                            {% else %}
+                                <span class="text-muted" style="font-size: 0.7rem;">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center py-4 text-secondary">
+                            No hay presupuestos registrados en el sistema.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

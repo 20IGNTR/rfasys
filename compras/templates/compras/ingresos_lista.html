@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Ingresos de Stock — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+
+    .table-history {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .table-history th {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        color: var(--rfa-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.7rem 0.85rem;
+        border-bottom: 1px solid var(--rfa-border);
+        background-color: rgba(255, 255, 255, 0.015);
+        font-weight: 500;
+    }
+
+    .table-history td {
+        padding: 0.65rem 0.85rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        font-size: 0.8rem;
+        vertical-align: middle;
+    }
+
+    .table-history tr:hover td {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .user-pill {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        color: var(--rfa-text-secondary);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .filter-search {
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--rfa-border);
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.775rem;
+        padding: 0.35rem 0.75rem;
+        width: 250px;
+    }
+    .filter-search:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+    }
+    .btn-trash {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--rfa-text-muted);
+    padding: 0.3rem 0.45rem;
+    border-radius: var(--rfa-radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    line-height: 1;
+}
+.btn-trash:hover {
+    color: #ff5c5c !important;
+    background-color: rgba(255, 59, 59, 0.08);
+    border-color: rgba(255, 59, 59, 0.35);
+    box-shadow: 0 0 12px rgba(255, 59, 59, 0.18);
+}
+  
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Cabecera de Página -->
+    <div class="page-header">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="tag-dot orange"></span>
+                <span class="font-monospace text-secondary" style="font-size: 0.7rem;">COMPRAS //</span>
+            </div>
+            <h1 class="page-title">Ingresos de Stock</h1>
+        </div>
+        
+        <!-- Badge Técnico: Operador / Usuario Activo Calibrado -->
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace" 
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;"></span>
+            <span class="text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">{{ tr_actual.creado_por.username|default:request.user.username }}</strong>
+            </span>
+        </div>
+
+        <a href="{% url 'compras_ingreso_crear' %}" class="btn-action-accent">
+            <span>+ Nuevo Ingreso</span>
+        </a>
+    </div>
+
+    <!-- Métricas Superiores (KPIs) -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">COMPRAS DEL MES</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.4rem;">Gs. {{ total_mes|floatformat:0 }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot neutral"></span>{{ total_comprobantes }} comprobantes</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">ARTÍCULOS RECIBIDOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.4rem;">0 <span style="font-size: 0.8rem; font-weight: normal; color: var(--rfa-text-muted);">unidades</span></div>
+                <span class="tag-badge font-monospace">Sin entradas hoy</span>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">PENDIENTES DE RECEPCIÓN</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.4rem;">0</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot orange"></span>Borradores</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registro Histórico de Compras -->
+    <div class="linear-card p-0" style="overflow: hidden;">
+        <div class="p-3 d-flex flex-wrap justify-content-between align-items-center gap-2 border-bottom" style="border-color: var(--rfa-border) !important;">
+            <span class="font-monospace text-secondary" style="font-size: 0.75rem; letter-spacing: 0.04em;">REGISTRO HISTÓRICO DE COMPRAS</span>
+            <input type="text" class="filter-search font-monospace" placeholder="Filtrar por proveedor o documento...">
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-history">
+                <thead>
+                    <tr>
+                        <th class="py-2">PROVEEDOR</th>
+                        <th class="py-2">N° DOCUMENTO</th>
+                        <th class="py-2">FECHA</th>
+                        <th class="py-2">MONTO</th>
+                        <th class="py-2">DESTINO</th>
+                        <th class="py-2">INGRESADO</th>
+                        <th class="py-2">MODIFICADO</th> <!-- NUEVA COLUMNA -->
+                        <th class="py-2">ESTADO</th>
+                        <th class="py-2 text-center" style="width: 45px;"></th> <!-- NUEVA COLUMNA ACCIONES -->
+                    </tr>
+                </thead>
+                <tbody>
+    {% for ing in ingresos %}
+    <tr onclick="location.href='/compras/ingresos/{{ ing.id }}/editar/'" style="cursor: pointer;">
+        
+        <td class="fw-semibold text-white">
+            {{ ing.proveedor.razon_social }}
+        </td>
+        <td class="font-monospace text-secondary">
+            {{ ing.numero_comprobante }}
+        </td>
+        <td class="font-monospace text-secondary">
+            {{ ing.fecha_comprobante|date:"d M Y" }}
+        </td>
+        <td class="font-monospace fw-bold text-end text-white">
+            {{ ing.moneda|default:"PYG" }} {{ ing.total_general|floatformat:0 }}
+        </td>
+        <td>
+            <span class="tag-badge font-monospace">{{ ing.deposito_destino.nombre }}</span>
+        </td>
+        <td>
+            <span class="user-pill">
+                <span class="tag-dot green"></span>
+                {{ ing.creado_por.username|default:"admin" }}
+            </span>
+        </td>
+
+        <!-- 1. Columna MODIFICADO (Punto naranja si hubo cambios) -->
+        <td class="font-monospace" style="font-size: 0.75rem;">
+            {% if ing.modificado_por %}
+                <span class="d-inline-flex align-items-center gap-2">
+                    <span class="tag-dot orange"></span>
+                    <span class="text-light">@{{ ing.modificado_por.username }}</span>
+                </span>
+            {% else %}
+                <span class="d-inline-flex align-items-center gap-2 text-secondary" style="opacity: 0.65;">
+                    <span class="tag-dot neutral"></span>
+                    <span>Sin modificaciones</span>
+                </span>
+            {% endif %}
+        </td>
+
+        <!-- Columna ESTADO -->
+        <td class="text-center">
+            {% if ing.anulado %}
+                <span class="tag-badge font-monospace" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+                    <span class="tag-dot" style="background-color: #ef4444;"></span>Anulado
+                </span>
+            {% else %}
+                <span class="tag-badge font-monospace" style="color: #4ade80; border-color: rgba(74, 222, 128, 0.2);">
+                    <span class="tag-dot green"></span>Confirmado
+                </span>
+            {% endif %}
+        </td>
+
+        <!-- 2. Columna ACCIÓN: Basurero reactivo -->
+        <td class="text-center" style="width: 45px;">
+            <a href="{% url 'compras_ingreso_eliminar' ing.id %}" 
+               class="btn-trash" 
+               title="Eliminar registro"
+               onclick="event.stopPropagation(); return confirm('¿Seguro que deseas eliminar el ingreso #{{ ing.numero_registro }}? Esta acción no se puede deshacer.');">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="9" class="text-center py-4 text-secondary font-monospace" style="font-size: 0.8rem;">
+            No hay compras registradas en el sistema.
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

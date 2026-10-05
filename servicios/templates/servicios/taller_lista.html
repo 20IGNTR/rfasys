@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+
+{% block title %}Taller Mecánico — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .page-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    /* Buscador técnico */
+    .filter-search {
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--rfa-border);
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.775rem;
+        padding: 0.38rem 0.85rem;
+        width: 320px;
+        transition: all 0.15s ease;
+    }
+
+    .filter-search:focus {
+        outline: none;
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+        box-shadow: 0 0 10px rgba(255, 106, 43, 0.1);
+    }
+
+    /* Botón de acción principal */
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+
+    /* Pestañas de estado rápido */
+    .status-tab {
+        background: transparent;
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text-secondary);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: var(--rfa-radius-sm);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .status-tab.active, .status-tab:hover {
+        background-color: rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Estructura de tabla densa */
+    .table-tech {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .table-tech th {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.67rem;
+        color: var(--rfa-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.75rem 0.9rem;
+        border-bottom: 1px solid var(--rfa-border);
+        background-color: rgba(255, 255, 255, 0.015);
+        font-weight: 500;
+    }
+
+    .table-tech td {
+        padding: 0.65rem 0.9rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+        font-size: 0.8rem;
+        vertical-align: middle;
+    }
+
+    .table-tech tbody tr {
+        transition: background-color 0.12s ease;
+    }
+
+    .table-tech tbody tr:hover td {
+        background-color: rgba(255, 255, 255, 0.025);
+    }
+
+   /* Base de Estado: Transparente y plano en reposo (idéntico al basurero y logout) */
+.btn-status-tech {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.32rem 0.65rem;
+    border-radius: var(--rfa-radius-sm);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: default;
+    background: transparent;
+    border: 1px solid transparent; /* Sin borde en reposo */
+    color: var(--rfa-text-secondary);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    line-height: 1;
+}
+
+/* 1. Listo Retiro: Verde Normal (#22c55e) */
+.btn-status-tech.listo .tag-dot {
+    background-color: #22c55e;
+}
+.btn-status-tech.listo:hover {
+    color: #4ade80 !important;
+    background-color: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.35);
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
+}
+
+/* 2. Pendiente: Amarillo */
+.btn-status-tech.pendiente .tag-dot {
+    background-color: #facc15;
+}
+.btn-status-tech.pendiente:hover {
+    color: #fde047 !important;
+    background-color: rgba(250, 204, 21, 0.08);
+    border-color: rgba(250, 204, 21, 0.35);
+    box-shadow: 0 0 12px rgba(250, 204, 21, 0.2);
+}
+
+/* 3. En Proceso: Naranja Institucional */
+.btn-status-tech.proceso .tag-dot {
+    background-color: var(--rfa-accent);
+}
+.btn-status-tech.proceso:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 106, 43, 0.08);
+    border-color: rgba(255, 106, 43, 0.35);
+    box-shadow: 0 0 12px rgba(255, 106, 43, 0.2);
+}
+
+/* Botón Basurero idéntico a Ingresos: Transparente y rojo reactivo al hover */
+.btn-trash {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--rfa-text-muted);
+    padding: 0.3rem 0.45rem;
+    border-radius: var(--rfa-radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    line-height: 1;
+}
+
+.btn-trash:hover {
+    color: #ff5c5c !important;
+    background-color: rgba(255, 59, 59, 0.08);
+    border-color: rgba(255, 59, 59, 0.35);
+    box-shadow: 0 0 12px rgba(255, 59, 59, 0.18);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- 1. Cabecera de Página: Título a la izquierda y Control de Período a la derecha -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <!-- Izquierda: Título de Sección -->
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="tag-dot orange"></span>
+                <span class="font-monospace text-secondary" style="font-size: 0.7rem;">SERVICIOS // BANCO DE TRABAJO &amp; CONTROL DE MOTOS</span>
+            </div>
+            <h1 class="page-title mb-0">Gestión de Taller y Servicios</h1>
+        </div>
+
+        <!-- Badge Técnico: Operador / Usuario Activo Calibrado -->
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace" 
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;"></span>
+            <span class="text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">{{ tr_actual.creado_por.username|default:request.user.username }}</strong>
+            </span>
+        </div>
+        
+        <!-- Derecha: Navegación Mensual con efecto de iluminación al hover -->
+        <div class="d-flex align-items-center gap-2">
+            <!-- Botón Mes Anterior -->
+            <a href="?mes={{ mes_anterior }}&amp;anio={{ anio_anterior }}" 
+               class="tag-badge text-decoration-none py-1 px-3 text-white" 
+               style="background: transparent; border: 1px solid var(--rfa-border); cursor: pointer; transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);"
+               onmouseover="this.style.borderColor='rgba(255, 255, 255, 0.35)'; this.style.backgroundColor='rgba(255, 255, 255, 0.04)'; this.style.boxShadow='0 0 10px rgba(255, 255, 255, 0.1)';"
+               onmouseout="this.style.borderColor='var(--rfa-border)'; this.style.backgroundColor='transparent'; this.style.boxShadow='none';"
+               title="Ver mes anterior">
+                <span style="font-size: 0.85rem;">←</span>
+                <span>Mes Anterior</span>
+            </a>
+
+            <!-- Etiqueta del Mes Seleccionado (Período Verde) -->
+            <div class="d-flex align-items-center gap-2 px-3 py-1 font-monospace" 
+                 style="background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12);">
+                <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e;"></span>
+                <span class="text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.04em; color: #86efac;">
+                    PERÍODO: <strong class="text-white">{{ nombre_mes }}</strong>
+                </span>
+            </div>
+
+            <!-- Botón Retorno Mes Actual (si se está en el pasado) -->
+            {% if not es_mes_actual %}
+                <a href="{% url 'servicios_taller' %}" 
+                   class="tag-badge text-decoration-none py-1 px-2" 
+                   style="background: transparent; border: 1px solid rgba(34, 197, 94, 0.35); color: #86efac; cursor: pointer; transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);"
+                   onmouseover="this.style.borderColor='rgba(34, 197, 94, 0.6)'; this.style.backgroundColor='rgba(34, 197, 94, 0.1)'; this.style.boxShadow='0 0 10px rgba(34, 197, 94, 0.2)';"
+                   onmouseout="this.style.borderColor='rgba(34, 197, 94, 0.35)'; this.style.backgroundColor='transparent'; this.style.boxShadow='none';"
+                   title="Regresar al período en curso">
+                    <span>Mes Actual</span>
+                </a>
+            {% endif %}
+
+            <!-- Botón Mes Siguiente -->
+            <a href="?mes={{ mes_siguiente }}&amp;anio={{ anio_siguiente }}" 
+               class="tag-badge text-decoration-none py-1 px-3 text-white" 
+               style="background: transparent; border: 1px solid var(--rfa-border); cursor: pointer; transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);"
+               onmouseover="this.style.borderColor='rgba(255, 255, 255, 0.35)'; this.style.backgroundColor='rgba(255, 255, 255, 0.04)'; this.style.boxShadow='0 0 10px rgba(255, 255, 255, 0.1)';"
+               onmouseout="this.style.borderColor='var(--rfa-border)'; this.style.backgroundColor='transparent'; this.style.boxShadow='none';"
+               title="Ver mes siguiente">
+                <span>Mes Siguiente</span>
+                <span style="font-size: 0.85rem;">→</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. Indicadores Clave del Taller (KPIs del período seleccionado) -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">EN BANCO DE TRABAJO</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ total_en_banco|default:"0" }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot neutral"></span>Motos en proceso</span>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">ESPERA DE REPUESTO</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ total_espera_repuesto|default:"0" }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot orange"></span>Pendientes de stock</span>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">LISTO PARA RETIRO</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ total_listo_retiro|default:"0" }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot green"></span>Pendientes de entrega</span>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">TOTAL DE SERVICIOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ total_servicios|default:"0" }}</div>
+                <span class="tag-badge font-monospace">Servicios del mes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Barra de Control Reorganizada: Filtros a la Izquierda, Buscador al Centro y Botón a la Derecha -->
+    <div class="linear-card p-2 mb-3 d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <!-- A. Pestañas de Estado (Izquierda) -->
+        <div class="d-flex align-items-center gap-1">
+            <button class="status-tab active" onclick="filtrarEstado('todos', this)">TODOS</button>
+            <button class="status-tab" onclick="filtrarEstado('banco', this)">EN PROCESO</button>
+            <button class="status-tab" onclick="filtrarEstado('repuesto', this)">PENDIENTE DE REPUESTO</button>
+            <button class="status-tab" onclick="filtrarEstado('listo', this)">RETIRADO</button>
+        </div>
+
+        <!-- B. Buscador Técnico Centralizado (Centro) -->
+        <div class="flex-grow-1 d-flex justify-content-center px-lg-3" style="max-width: 480px;">
+            <input type="text" 
+                   id="buscarOrden" 
+                   onkeyup="buscarEnTabla()" 
+                   class="filter-search font-monospace w-100" 
+                   placeholder="Buscar por N° OT, modelo, placa, cliente...">
+        </div>
+
+        <!-- C. Botón de Nueva Orden de Trabajo (Derecha) -->
+        <div>
+            <a href="{% url 'servicios_orden_crear' %}" class="btn-action-accent py-2 px-3 text-nowrap">
+                <span>+ Nueva Orden de Trabajo</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Panel Principal de Órdenes de Trabajo -->
+    <div class="linear-card p-0 mb-3" style="overflow: hidden;">
+
+        <!-- Tabla Densa Técnica -->
+        <div class="table-responsive">
+            <table class="table-tech" id="tablaTaller">
+                <thead>
+                    <tr>
+                        <th style="width: 110px;">ORDEN</th>
+                        <th>MOTOCICLETA</th>
+                        <th style="width: 110px;">MATRÍCULA</th>
+                        <th>CLIENTE</th>
+                        <th>MOTIVO DE INGRESO</th>
+                        <th style="width: 180px;">MECÁNICO ASIGNADO</th>
+                        <th class="text-center" style="width: 140px;">ESTADO</th>
+                        <th class="text-center" style="width: 45px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for orden in ordenes %}
+<tr class="taller-row" data-id="{{ orden.id }}" data-estado="{{ orden.estado }}" style="cursor: pointer;">
+    <!-- 1. ORDEN -->
+    <td class="font-monospace text-secondary fw-semibold">
+        #{{ orden.numero_orden|default:orden.id }}
+    </td>
+
+    <!-- 2. MODELO -->
+    <td>
+        <span class="fw-semibold text-white">{{ orden.moto_modelo }}</span>
+    </td>
+
+    <!-- 3. PLACA -->
+    <td>
+        <span class="font-monospace text-secondary text-uppercase" style="font-size: 0.75rem;">
+            {{ orden.moto_placa }}
+        </span>
+    </td>
+
+    <!-- 4. CLIENTE -->
+    <td>
+        <span class="text-light fw-medium">{{ orden.cliente_nombre }}</span>
+    </td>
+
+    <!-- 5. MOTIVO DE INGRESO -->
+    <td class="text-secondary" style="font-size: 0.78rem;">
+        {{ orden.motivo_ingreso|truncatechars:55 }}
+    </td>
+
+    <!-- 6. MECÁNICO ASIGNADO -->
+    <td>
+        <span class="tag-badge font-monospace">
+            <span class="tag-dot green"></span>
+            {% if orden.mecanico.get_full_name %}
+                {{ orden.mecanico.get_full_name }}
+            {% else %}
+                @{{ orden.mecanico.username }}
+            {% endif %}
+        </span>
+    </td>
+
+    <!-- 7. ESTADO -->
+    <td class="text-center">
+        {% if orden.estado == 'listo' or orden.estado == 'entregado' %}
+            <span class="btn-status-tech listo">
+                <span class="tag-dot"></span>
+                <span>Terminado</span>
+            </span>
+        {% elif orden.estado == 'banco' %}
+            <span class="btn-status-tech proceso">
+                <span class="tag-dot"></span>
+                <span>Proceso</span>
+            </span>
+        {% else %}
+            <span class="btn-status-tech pendiente">
+                <span class="tag-dot"></span>
+                <span>Pendiente</span>
+            </span>
+        {% endif %}
+    </td>
+
+    <!-- 8. BASURERO (Elimina con confirmación y stopPropagation para no abrir la edición) -->
+    <td class="text-center" style="width: 45px;">
+        <a href="{% url 'servicios_orden_eliminar' orden.id %}" 
+           class="btn-trash" 
+           title="Eliminar orden"
+           onclick="event.stopPropagation(); return confirm('¿Seguro que deseas eliminar la orden #{{ orden.numero_orden|default:orden.id }}? Esta acción no se puede deshacer.');">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="8" class="text-center py-5 text-secondary font-monospace" style="font-size: 0.8rem;">
+        No hay órdenes de trabajo activas en el taller. Haz clic en "+ Nueva Orden de Trabajo" para registrar una moto.
+    </td>
+</tr>
+{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filtros de estado rápido
+    function filtrarEstado(estado, btn) {
+        document.querySelectorAll('.status-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filas = document.querySelectorAll('.taller-row');
+        filas.forEach(fila => {
+            const dataEstado = fila.getAttribute('data-estado');
+            if (estado === 'todos' || dataEstado === estado) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    }
+
+    // Buscador interactivo en vivo por N° orden, modelo, placa y cliente
+    function buscarEnTabla() {
+        const input = document.getElementById('buscarOrden');
+        const filter = input.value.trim().toUpperCase();
+        const filas = document.querySelectorAll('.taller-row');
+
+        filas.forEach(fila => {
+            const texto = fila.textContent || fila.innerText;
+            fila.style.display = texto.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+        });
+    }
+    document.querySelectorAll('.taller-row').forEach(function(fila) {
+    fila.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        if (id) {
+            window.location.href = '/servicios/taller/' + id + '/editar/';
+        }
+    });
+});
+</script>
+{% endblock %}

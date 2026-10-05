@@ -1,0 +1,790 @@
+{% extends "base.html" %}
+
+{% block title %}{% if es_edicion %}Editar Ingreso #{{ ingreso.numero_registro|default:ingreso.id }}{% else %}Nuevo Ingreso — RFA&T/SYS{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* =========================================
+       ESTILIZACIÓN DE MENÚS DE SELECCIÓN Y BOTONES
+       ========================================= */
+
+    /* 1. Selectores de formularios y celdas */
+    .form-select-tech, .cell-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239E9E9E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.6rem center;
+        background-size: 12px;
+        padding-right: 2rem !important; 
+    }
+
+    .cell-select {
+        background-position: right 0.4rem center;
+        padding-right: 1.5rem !important;
+    }
+
+    .btn-dropdown-tech {
+        background-color: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--rfa-border);
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        padding: 0.38rem 2rem 0.38rem 0.6rem;
+        text-align: left;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.15s ease;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239E9E9E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.6rem center;
+        background-size: 12px;
+    }
+
+    .btn-dropdown-tech:hover, .btn-dropdown-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .btn-dropdown-tech::after {
+        display: none !important;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .page-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .form-label-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .form-control-tech, .form-select-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--rfa-border);
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.8rem;
+        padding: 0.38rem 0.6rem;
+        transition: all 0.15s ease;
+    }
+
+    .form-control-tech:focus, .form-select-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .form-select-tech option {
+        background-color: #161616;
+        color: #ffffff;
+    }
+
+    .table-items {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .table-items th {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--rfa-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--rfa-border);
+        background-color: rgba(255, 255, 255, 0.01);
+        font-weight: 500;
+    }
+
+    .table-items td {
+        padding: 0.35rem 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+        vertical-align: middle;
+    }
+
+    .cell-input {
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.8rem;
+        padding: 0.3rem 0.5rem;
+        width: 100%;
+        transition: all 0.12s ease;
+    }
+
+    .cell-input:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .cell-input:focus {
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        outline: none;
+    }
+
+    .cell-select {
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text);
+        font-size: 0.8rem;
+        padding: 0.3rem 0.4rem;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.12s ease;
+    }
+
+    .cell-select:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .cell-select:focus {
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        outline: none;
+    }
+
+    .cell-select option {
+        background-color: #161616;
+        color: #ffffff;
+    }
+
+    .btn-action-primary {
+        background-color: var(--rfa-accent);
+        color: #ffffff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.4rem 0.85rem;
+        border-radius: var(--rfa-radius-sm);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .btn-action-primary:hover {
+        background-color: var(--rfa-accent-hover);
+        color: #ffffff;
+    }
+
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+
+    .btn-action-ghost {
+        background-color: transparent;
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text-secondary);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: var(--rfa-radius-sm);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.15s ease;
+    }
+
+    .btn-action-ghost:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+
+    .btn-row-delete {
+        background: transparent;
+        border: none;
+        color: var(--rfa-text-muted);
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 0.2rem 0.4rem;
+        border-radius: var(--rfa-radius-sm);
+        transition: all 0.15s ease;
+    }
+
+    .btn-row-delete:hover {
+        color: #ff5c5c;
+        background-color: rgba(255, 59, 59, 0.08);
+    }
+
+    .req-dot {
+        display: inline-block;
+        width: 5px;
+        height: 5px;
+        background-color: var(--rfa-accent);
+        border-radius: 50%;
+        vertical-align: middle;
+        margin-left: 0.25rem;
+        position: relative;
+        top: -1px;
+
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <form method="POST" action="" enctype="multipart/form-data" id="formIngreso">
+        {% csrf_token %}
+
+        <!-- Marco Contenedor Principal -->
+        <div class="linear-card mb-3 py-3 position-relative">
+            
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--rfa-border) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="tag-dot orange"></span>
+                    <span class="font-monospace text-light" style="font-size: 0.75rem; font-weight: 500;">
+                        HOJA DE REGISTROS FACTURAS / REMISIONES / IMPORTACIONES / NOTAS DE CRÉDITO
+                    </span>
+                </div>
+
+                <button type="submit" class="btn-action-accent">
+                    <span>{% if es_edicion %}Actualizar Ingreso{% else %}Confirmar Ingreso{% endif %}</span>
+                    <span style="font-size: 0.85rem;">→</span>
+                </button>
+            </div>
+
+            <!-- Panel 1: Cabecera de Datos Generales y Auditoría -->
+            <div class="linear-card mb-3 py-3 position-relative">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: var(--rfa-border) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-dot orange"></span>
+                        <span class="font-monospace text-light" style="font-size: 0.75rem; font-weight: 500;">DATOS GENERALES</span>
+                    </div>
+                    <span class="tag-badge font-monospace">N° REGISTRO: {{ ingreso.numero_registro|default:"00001" }}</span>
+                </div>
+
+                <!-- Fila 1: Documento, Proveedor, Destino y Responsable -->
+                <div class="row g-2 align-items-end mb-2">
+                    <div class="col-12 col-md-2">
+                        <label class="form-label-tech">Proveedor<span class="req-dot"></span></label>
+                        <select class="form-select-tech" name="proveedor" required onchange="autocompletarTimbrado(this)">
+                            <option selected disabled value="">Elegir proveedor...</option>
+                            {% for prov in proveedores %}
+                                <option value="{{ prov.id }}" data-timbrado="{{ prov.timbrado|default:'' }}" {% if ingreso and ingreso.proveedor_id == prov.id %}selected{% endif %}>
+                                    {{ prov.razon_social }} ({{ prov.ruc }})
+                                </option>
+                            {% empty %}
+                                <option disabled>Sin proveedores en BD</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-2" id="contenedorTimbrado">
+                        <label class="form-label-tech">N° Timbrado<span class="req-dot" id="dotTimbrado"></span></label>
+                        <input type="text" id="inputTimbrado" name="timbrado" value="{{ ingreso.timbrado|default:'' }}" class="form-control-tech font-monospace" placeholder="12345678" maxlength="8" required>
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label-tech">Tipo Doc.<span class="req-dot"></span></label>
+                        <select class="form-select-tech" name="tipo_documento" id="selectTipoDoc" onchange="verificarTipoDoc(this)">
+                            <option value="factura" {% if ingreso and ingreso.tipo_documento == 'factura' %}selected{% endif %}>Factura</option>
+                            <option value="recibo" {% if ingreso and ingreso.tipo_documento == 'recibo' %}selected{% endif %}>Recibo</option>
+                            <option value="remision" {% if ingreso and ingreso.tipo_documento == 'remision' %}selected{% endif %}>Remisión</option>
+                            <option value="importacion" {% if ingreso and ingreso.tipo_documento == 'importacion' %}selected{% endif %}>Importación</option>
+                            <option value="credito" {% if ingreso and ingreso.tipo_documento == 'credito' %}selected{% endif %}>Nota de Crédito</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label-tech">N° Comprobante<span class="req-dot"></span></label>
+                        <input type="text" 
+                            id="inputComprobante"
+                            name="numero_comprobante" 
+                            value="{{ ingreso.numero_comprobante|default:'' }}" 
+                            class="form-control-tech font-monospace" 
+                            placeholder="001-001-0000000" 
+                            maxlength="15" 
+                            oninput="formatearComprobante(this)"
+                            required>
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label-tech">Depósito Destino<span class="req-dot"></span></label>
+                        <select class="form-select-tech" name="deposito" required>
+                            <option selected disabled value="">Elegir depósito...</option>
+                            {% for dep in depositos %}
+                                <option value="{{ dep.id }}" {% if ingreso and ingreso.deposito_destino_id == dep.id %}selected{% endif %}>{{ dep.nombre }}</option>
+                            {% empty %}
+                                <option disabled>Sin depósitos en BD</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <label class="form-label-tech">Recibido por<span class="req-dot"></span></label>
+                        <select class="form-select-tech font-monospace" name="recibido_por" required>
+                            <option selected disabled value="">Seleccionar personal...</option>
+                            {% for emp in empleados %}
+                                <option value="{{ emp.id }}" {% if ingreso and ingreso.recibido_por_id == emp.id %}selected{% elif not ingreso and emp.id == request.user.id %}selected{% endif %}>
+                                    {% if emp.get_full_name %}{{ emp.get_full_name }}{% else %}@{{ emp.username }}{% endif %}
+                                </option>
+                            {% empty %}
+                                <option value="{{ request.user.id }}" selected>@{{ request.user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Fila 2: Condiciones comerciales, Divisa, Fecha y Adjunto -->
+                <div class="row g-2 align-items-end">
+                    <div class="col-6 col-md-2">
+                        <label class="form-label-tech">Condición<span class="req-dot"> </span></label>
+                        <select class="form-select-tech font-monospace" name="condicion">
+                            <option value="contado" {% if ingreso and ingreso.condicion == 'contado' %}selected{% endif %}>Contado</option>
+                            <option value="credito" {% if ingreso and ingreso.condicion == 'credito' %}selected{% endif %}>Crédito</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label-tech">Transacción<span class="req-dot"> </span></label>
+                        <select class="form-select-tech font-monospace" name="metodo_pago">
+                            <option value="efectivo" {% if ingreso and ingreso.metodo_pago == 'efectivo' %}selected{% endif %}>Efectivo</option>
+                            <option value="transferencia" {% if ingreso and ingreso.metodo_pago == 'transferencia' %}selected{% endif %}>Transferencia</option>
+                            <option value="tarjeta" {% if ingreso and ingreso.metodo_pago == 'tarjeta' %}selected{% endif %}>Tarjeta</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label-tech">Fecha<span class="req-dot"> </span></label>
+                        <input type="date" name="fecha_comprobante" class="form-control-tech font-monospace" value="{% if ingreso %}{{ ingreso.fecha_comprobante|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}" required>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="row g-1">
+                            <div class="col-7">
+                                <label class="form-label-tech">Moneda</label>
+                                <select class="form-select-tech font-monospace" id="selectMoneda" name="moneda" onchange="actualizarMoneda()">
+                                    <option value="PYG" data-symbol="Gs." {% if not ingreso or ingreso.moneda == 'PYG' %}selected{% endif %}>PYG (Gs.)</option>
+                                    <option value="USD" data-symbol="USD" {% if ingreso and ingreso.moneda == 'USD' %}selected{% endif %}>USD ($)</option>
+                                    <option value="BRL" data-symbol="R$" {% if ingreso and ingreso.moneda == 'BRL' %}selected{% endif %}>BRL (R$)</option>
+                                    <option value="ARS" data-symbol="ARS" {% if ingreso and ingreso.moneda == 'ARS' %}selected{% endif %}>ARS ($)</option>
+                                    <option value="EUR" data-symbol="€" {% if ingreso and ingreso.moneda == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                                </select>
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label-tech">Cotización</label>
+                                <input type="number" class="form-control-tech font-monospace text-end" id="tipoCambio" name="cotizacion" value="{{ ingreso.tipo_cambio|default:'1' }}" step="any" oninput="calcularTotales()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <label class="form-label-tech">Comprobante (PDF / Foto)</label>
+                        <input type="file" class="form-control-tech font-monospace" name="comprobante_adjunto" accept=".pdf,image/*" style="font-size: 0.72rem; padding: 0.32rem 0.5rem;">
+                    </div>
+                </div>
+
+                <!-- Marca de Agua / Bloque de Auditoría y Trazabilidad -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-2 border-top font-monospace" 
+                     style="border-color: rgba(255,255,255,0.03) !important; font-size: 0.68rem; color: var(--rfa-text-muted); opacity: 0.85;">
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-dot orange" style="width: 5px; height: 5px;"></span>
+                        <span>INSERCIÓN: <strong class="text-secondary fw-medium">@{{ ingreso.creado_por.username|default:request.user.username }}</strong> &bull; {% if ingreso %}{{ ingreso.fecha_insercion|date:"d/m/Y H:i" }}{% else %}{% now "d/m/Y H:i" %}{% endif %}</span>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-dot orange" style="width: 5px; height: 5px;"></span>
+                        <span>MODIFICACIÓN: <span class="text-secondary">{% if ingreso and ingreso.modificado_por %}@{{ ingreso.modificado_por.username }} &bull; {{ ingreso.fecha_modificacion|date:"d/m/Y H:i" }}{% else %}--- (Sin ediciones){% endif %}</span></span>
+                    </div>
+
+                    <div class="d-none d-lg-block">
+                        <span class="d-inline-flex align-items-center gap-1">
+                            CAMPOS OBLIGATORIOS <span class="req-dot" style="margin-left: 0.1rem; margin-right: 0.25rem;"></span> | CONTROL INTERNO RFA&T
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2: Detalle de Artículos -->
+            <div class="linear-card p-0 mb-3" style="overflow: hidden;">
+                <div class="p-3 d-flex justify-content-between align-items-center border-bottom" style="border-color: var(--rfa-border) !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-dot orange"></span>
+                        <span class="font-monospace text-light" style="font-size: 0.75rem; font-weight: 500;">ARTÍCULOS ADQUIRIDOS</span>
+                    </div>
+                    <button type="button" class="btn-action-ghost py-1 px-2" style="font-size: 0.7rem;" onclick="agregarFila()">+ Agregar Fila</button>
+                </div>
+
+                <div class="table-responsive">
+    <table class="table-items" id="tablaDetalle">
+        <thead>
+            <tr>
+                <th style="width: 130px;">CÓDIGO</th>
+                <th>ARTÍCULO / SELECCIÓN</th>
+                <th style="width: 130px;">LOTE PROV.</th>
+                <th style="width: 90px;" class="text-end">CANT.</th>
+                <th style="width: 125px;" class="text-end">COSTO (<span class="moneda-label">Gs.</span>)</th>
+                <th style="width: 100px;">IVA</th>
+                <th style="width: 130px;" class="text-end">SUBTOTAL (<span class="moneda-label">Gs.</span>)</th>
+                <th style="width: 35px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if detalles %}
+                {% for det in detalles %}
+                <tr>
+                    <td>
+                        <input type="text" class="cell-input font-monospace text-secondary item-codigo" value="{{ det.articulo.codigo }}" placeholder="---" readonly tabindex="-1">
+                    </td>
+                    <td>
+                        <select class="cell-select item-articulo" name="articulos[]" onchange="seleccionarArticulo(this)">
+                            <option disabled value="">Seleccionar artículo...</option>
+                            {% for art in articulos %}
+                                <option value="{{ art.codigo }}" data-costo="{{ art.costo_referencia|floatformat:0 }}" {% if art.codigo == det.articulo.codigo %}selected{% endif %}>
+                                    {{ art.nombre }}{% if art.presentacion %} ({{ art.presentacion }}){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="cell-input font-monospace" name="lotes[]" value="{{ det.lote_proveedor|default:'' }}" placeholder="Lote">
+                    </td>
+                    <td>
+                        <input type="number" class="cell-input font-monospace text-end item-cantidad" name="cantidades[]" value="{{ det.cantidad|floatformat:0 }}" min="1" oninput="calcularTotales()">
+                    </td>
+                    <td>
+                        <input type="number" class="cell-input font-monospace text-end item-costo" name="costos[]" value="{{ det.costo_unitario|floatformat:0 }}" step="any" oninput="calcularTotales()">
+                    </td>
+                    <td>
+                        <select class="cell-select font-monospace item-iva" name="ivas[]" onchange="calcularTotales()">
+                            <option value="10" {% if det.tipo_iva == 10 %}selected{% endif %}>IVA 10%</option>
+                            <option value="5" {% if det.tipo_iva == 5 %}selected{% endif %}>IVA 5%</option>
+                            <option value="0" {% if det.tipo_iva == 0 %}selected{% endif %}>Exenta</option>
+                        </select>
+                    </td>
+                    <td class="font-monospace text-end fw-semibold item-subtotal" style="color: #ffffff; padding-right: 0.75rem;">
+                        {{ det.subtotal|floatformat:0 }}
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn-row-delete" onclick="eliminarFila(this)" title="Quitar">&times;</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td>
+                        <input type="text" class="cell-input font-monospace text-secondary item-codigo" placeholder="---" readonly tabindex="-1">
+                    </td>
+                    <td>
+                        <select class="cell-select item-articulo" name="articulos[]" onchange="seleccionarArticulo(this)">
+                            <option selected disabled value="">Seleccionar artículo...</option>
+                            {% for art in articulos %}
+                                <option value="{{ art.codigo }}" data-costo="{{ art.costo_referencia|floatformat:0 }}">
+                                    {{ art.nombre }}{% if art.presentacion %} ({{ art.presentacion }}){% endif %}
+                                </option>
+                            {% empty %}
+                                <option disabled>Sin artículos registrados</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="cell-input font-monospace" name="lotes[]" placeholder="Lote">
+                    </td>
+                    <td>
+                        <input type="number" class="cell-input font-monospace text-end item-cantidad" name="cantidades[]" value="1" min="1" oninput="calcularTotales()">
+                    </td>
+                    <td>
+                        <input type="number" class="cell-input font-monospace text-end item-costo" name="costos[]" value="0" step="any" oninput="calcularTotales()">
+                    </td>
+                    <td>
+                        <select class="cell-select font-monospace item-iva" name="ivas[]" onchange="calcularTotales()">
+                            <option value="10" selected>IVA 10%</option>
+                            <option value="5">IVA 5%</option>
+                            <option value="0">Exenta</option>
+                        </select>
+                    </td>
+                    <td class="font-monospace text-end fw-semibold item-subtotal" style="color: #ffffff; padding-right: 0.75rem;">
+                        0
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn-row-delete" onclick="eliminarFila(this)" title="Quitar">&times;</button>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+                <!-- Resumen de Liquidación -->
+                <div class="p-3 border-top" style="border-color: var(--rfa-border) !important; background-color: rgba(255, 255, 255, 0.01);">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-md-6 d-flex flex-wrap gap-3 font-monospace text-secondary" style="font-size: 0.72rem;">
+                            <span>Exentas: <strong class="text-light fw-normal" id="totalExentas">0</strong></span>
+                            <span class="text-muted">|</span>
+                            <span>IVA 5%: <strong class="text-light fw-normal" id="totalIva5">0</strong></span>
+                            <span class="text-muted">|</span>
+                            <span>IVA 10%: <strong class="text-light fw-normal" id="totalIva10">0</strong></span>
+                        </div>
+                        <div class="col-12 col-md-6 d-flex justify-content-md-end align-items-baseline gap-4 mt-2 mt-md-0">
+                            <div class="font-monospace" style="font-size: 0.75rem;">
+                                <span class="text-secondary">Liq. IVA: </span>
+                                <strong class="text-light fw-medium" id="totalLiquidacionIva">0</strong>
+                            </div>
+                            <div class="font-monospace">
+                                <span class="text-secondary" style="font-size: 0.75rem;">TOTAL: </span>
+                                <strong class="text-white fw-bold" style="font-size: 1.15rem;" id="totalGeneral">Gs. 0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3: Observaciones -->
+            <div class="linear-card py-3">
+                <label class="form-label-tech">Observaciones del Comprobante</label>
+                <textarea class="form-control-tech font-monospace" name="observaciones" rows="2" placeholder="Detalles del producto, condiciones del pedido y/o comentarios..." style="font-size: 0.78rem;">{{ ingreso.observaciones|default:'' }}</textarea>
+            </div>
+
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ articulos_json|json_script:"articulos-data" }}
+
+<script>
+    function formatearComprobante(input) {
+    // 1. Acepta letras (A-Z) y números (0-9), eliminando caracteres raros o espacios
+    let valor = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 13);
+    
+    // 2. Inserta los guiones automáticamente según la posición
+    if (valor.length > 6) {
+        input.value = `${valor.slice(0, 3)}-${valor.slice(3, 6)}-${valor.slice(6)}`;
+    } else if (valor.length > 3) {
+        input.value = `${valor.slice(0, 3)}-${valor.slice(3)}`;
+    } else {
+        input.value = valor;
+    }
+}
+
+    function verificarTipoDoc(selectElem) {
+        const inputTimbrado = document.getElementById('inputTimbrado');
+        const dotTimbrado = document.getElementById('dotTimbrado');
+        
+        if (selectElem.value === 'recibo' || selectElem.value === 'remision') {
+            // Si es recibo interno, el timbrado no es exigido
+            inputTimbrado.removeAttribute('required');
+            inputTimbrado.placeholder = "Opcional / S/T";
+            if (dotTimbrado) dotTimbrado.style.display = 'none';
+        } else {
+            // Si es factura o nota de crédito formal
+            inputTimbrado.setAttribute('required', 'required');
+            inputTimbrado.placeholder = "12345678";
+            if (dotTimbrado) dotTimbrado.style.display = 'inline-block';
+        }
+    }
+    
+    function autocompletarTimbrado(selectElem) {
+        const selectedOption = selectElem.options[selectElem.selectedIndex];
+        const timbrado = selectedOption.getAttribute('data-timbrado') || '';
+        const inputTimbrado = document.getElementById('inputTimbrado');
+        if (inputTimbrado) {
+            inputTimbrado.value = timbrado;
+        }
+    }
+
+    const scriptArticulos = document.getElementById('articulos-data');
+    const CATALOGO_ARTICULOS = scriptArticulos ? JSON.parse(scriptArticulos.textContent) : [];
+
+    function generarOpcionesArticulos() {
+        if (!CATALOGO_ARTICULOS || CATALOGO_ARTICULOS.length === 0) {
+            const primerSelect = document.querySelector('.item-articulo');
+            return primerSelect ? primerSelect.innerHTML : '<option disabled>Sin artículos registrados</option>';
+        }
+        let html = '<option selected disabled value="">Seleccionar artículo...</option>';
+        CATALOGO_ARTICULOS.forEach(art => {
+            html += `<option value="${art.codigo}" data-costo="${art.costo}">${art.nombre}</option>`;
+        });
+        return html;
+    }
+
+    function seleccionarArticulo(selectElem) {
+        const codigo = selectElem.value;
+        const selectedOption = selectElem.options[selectElem.selectedIndex];
+        const costoRef = selectedOption.getAttribute('data-costo') || 0;
+        
+        const fila = selectElem.closest('tr');
+        fila.querySelector('.item-codigo').value = codigo;
+        
+        const costoInput = fila.querySelector('.item-costo');
+        if (!costoInput.value || costoInput.value == "0") {
+            costoInput.value = costoRef;
+        }
+        calcularTotales();
+    }
+
+    function actualizarMoneda() {
+        const select = document.getElementById('selectMoneda');
+        if (!select) return;
+        const symbol = select.options[select.selectedIndex].getAttribute('data-symbol') || 'Gs.';
+        const tipoCambioInput = document.getElementById('tipoCambio');
+
+        document.querySelectorAll('.moneda-label').forEach(el => el.innerText = symbol);
+
+        if (select.value === 'PYG') {
+            tipoCambioInput.value = '1';
+            tipoCambioInput.readOnly = true;
+            tipoCambioInput.style.opacity = '0.5';
+        } else {
+            tipoCambioInput.readOnly = false;
+            tipoCambioInput.style.opacity = '1';
+            if (select.value === 'USD' && tipoCambioInput.value === '1') tipoCambioInput.value = '7500';
+            if (select.value === 'BRL' && tipoCambioInput.value === '1') tipoCambioInput.value = '1450';
+            if (select.value === 'ARS' && tipoCambioInput.value === '1') tipoCambioInput.value = '6.5';
+            if (select.value === 'EUR' && tipoCambioInput.value === '1') tipoCambioInput.value = '8200';
+        }
+        calcularTotales();
+    }
+
+    function calcularTotales() {
+        const selectMoneda = document.getElementById('selectMoneda');
+        const symbol = selectMoneda ? selectMoneda.options[selectMoneda.selectedIndex].getAttribute('data-symbol') : 'Gs.';
+
+        let sumExenta = 0;
+        let sumGravada5 = 0;
+        let sumGravada10 = 0;
+        let totalGeneral = 0;
+
+        const filas = document.querySelectorAll('#tablaDetalle tbody tr');
+        filas.forEach(fila => {
+            const cant = parseFloat(fila.querySelector('.item-cantidad').value) || 0;
+            const costo = parseFloat(fila.querySelector('.item-costo').value) || 0;
+            const iva = fila.querySelector('.item-iva').value;
+            const subtotal = cant * costo;
+
+            fila.querySelector('.item-subtotal').innerText = Math.round(subtotal).toLocaleString('es-PY');
+            totalGeneral += subtotal;
+
+            if (iva === '0') sumExenta += subtotal;
+            else if (iva === '5') sumGravada5 += subtotal;
+            else if (iva === '10') sumGravada10 += subtotal;
+        });
+
+        const iva5Liquidacion = Math.round(sumGravada5 / 21);
+        const iva10Liquidacion = Math.round(sumGravada10 / 11);
+        const totalIva = iva5Liquidacion + iva10Liquidacion;
+
+        document.getElementById('totalExentas').innerText = `${symbol} ${Math.round(sumExenta).toLocaleString('es-PY')}`;
+        document.getElementById('totalIva5').innerText = `${symbol} ${iva5Liquidacion.toLocaleString('es-PY')}`;
+        document.getElementById('totalIva10').innerText = `${symbol} ${iva10Liquidacion.toLocaleString('es-PY')}`;
+        document.getElementById('totalLiquidacionIva').innerText = `${symbol} ${totalIva.toLocaleString('es-PY')}`;
+        document.getElementById('totalGeneral').innerText = `${symbol} ${Math.round(totalGeneral).toLocaleString('es-PY')}`;
+    }
+
+    function agregarFila() {
+        const tbody = document.querySelector('#tablaDetalle tbody');
+        const nuevaFila = document.createElement('tr');
+        const opciones = generarOpcionesArticulos();
+
+        nuevaFila.innerHTML = `
+            <td>
+                <input type="text" class="cell-input font-monospace text-secondary item-codigo" placeholder="---" readonly tabindex="-1">
+            </td>
+            <td>
+                <select class="cell-select item-articulo" name="articulos[]" onchange="seleccionarArticulo(this)">
+                    ${opciones}
+                </select>
+            </td>
+            <td>
+                <input type="text" class="cell-input font-monospace" name="lotes[]" placeholder="Lote">
+            </td>
+            <td>
+                <input type="number" class="cell-input font-monospace text-end item-cantidad" name="cantidades[]" value="1" min="1" oninput="calcularTotales()">
+            </td>
+            <td>
+                <input type="number" class="cell-input font-monospace text-end item-costo" name="costos[]" value="0" step="any" oninput="calcularTotales()">
+            </td>
+            <td>
+                <select class="cell-select font-monospace item-iva" name="ivas[]" onchange="calcularTotales()">
+                    <option value="10" selected>IVA 10%</option>
+                    <option value="5">IVA 5%</option>
+                    <option value="0">Exenta</option>
+                </select>
+            </td>
+            <td class="font-monospace text-end fw-semibold item-subtotal" style="color: #ffffff; padding-right: 0.75rem;">
+                0
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn-row-delete" onclick="eliminarFila(this)" title="Quitar">&times;</button>
+            </td>
+        `;
+        tbody.appendChild(nuevaFila);
+        calcularTotales();
+    }
+
+    function eliminarFila(btn) {
+        const filas = document.querySelectorAll('#tablaDetalle tbody tr');
+        if (filas.length > 1) {
+            btn.closest('tr').remove();
+            calcularTotales();
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        actualizarMoneda();
+        calcularTotales();
+    });
+</script>
+{% endblock %}

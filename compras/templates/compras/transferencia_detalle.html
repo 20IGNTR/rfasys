@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+
+{% block title %}Comprobante de Traslado #{{ transferencia.numero_transferencia }} — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Tipografía Proporcional y Escala Compacta */
+    .doc-container {
+        font-family: 'Inter', -apple-system, sans-serif;
+        color: #ffffff;
+        letter-spacing: -0.01em;
+        font-size: 0.82rem; /* Escala reducida */
+    }
+    
+    /* Marco con borde rayado/guiones */
+    .doc-card {
+        background: #141517;
+        border: 1px dashed rgba(255, 255, 255, 0.22);
+        border-radius: var(--rfa-radius);
+        padding: 1.75rem;
+    }
+
+    .doc-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #a1a1aa;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .doc-value {
+        font-size: 0.85rem;
+        color: #ffffff;
+        font-weight: 500;
+    }
+
+    /* Insignia de depósito sobria con borde punteado */
+    .dep-badge {
+        display: inline-block;
+        font-size: 0.76rem;
+        font-weight: 500;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.2rem 0.6rem;
+    }
+
+    /* Tabla Corporativa con divisiones en guiones */
+    .table-executive {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .table-executive th {
+        font-size: 0.68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #d4d4d8;
+        padding: 0.6rem 0.85rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+    }
+    .table-executive td {
+        padding: 0.65rem 0.85rem;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+        font-size: 0.78rem;
+        color: #ffffff;
+    }
+
+    /* Botón de impresión */
+    .btn-print-executive {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-print-executive:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Línea de firma rayada */
+    .signature-slot {
+        width: 75%;
+        margin: 0 auto;
+        text-align: center;
+    }
+    .signature-dash-line {
+        border-top: 1px dashed rgba(255, 255, 255, 0.4);
+        margin-bottom: 0.4rem;
+        width: 100%;
+    }
+
+    /* =========================================================
+       MODO DE IMPRESIÓN Y PDF: NEGRO PURO 100% SIN TRANSPARENCIAS
+       ========================================================= */
+    @media print {
+        /* 1. Ocultar interfaz y barras */
+        header, .navbar-rfa, .page-header-actions, .rfa-navbar, nav, footer {
+            display: none !important;
+        }
+
+        /* 2. Forzar renderizado exacto sin opacidad */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            opacity: 1 !important;
+            text-shadow: none !important;
+            box-shadow: none !important;
+        }
+
+        body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            font-size: 9.5pt !important;
+        }
+
+        .doc-container {
+            max-width: 100% !important;
+            padding: 0 !important;
+            color: #000000 !important;
+        }
+
+        .doc-card {
+            border: 1.5px dashed #000000 !important;
+            background: #ffffff !important;
+            padding: 1.25rem !important;
+        }
+
+        /* 3. Textos forzados a negro absoluto */
+        .doc-label, .doc-value, th, td, div, span, h1, strong, em, .text-white, .text-light, .text-secondary, .text-muted {
+            color: #000000 !important;
+            font-weight: normal;
+        }
+
+        h1, strong, .fw-semibold, .fw-medium, th {
+            font-weight: 700 !important;
+            color: #000000 !important;
+        }
+
+        .table-executive {
+            border: 1px dashed #000000 !important;
+        }
+
+        .table-executive th {
+            background: #f4f4f5 !important;
+            color: #000000 !important;
+            border-bottom: 1.5px dashed #000000 !important;
+        }
+
+        .table-executive td {
+            border-bottom: 1px dashed #444444 !important;
+            color: #000000 !important;
+        }
+
+        .dep-badge {
+            background: transparent !important;
+            border: 1px dashed #000000 !important;
+            color: #000000 !important;
+            font-weight: 600 !important;
+        }
+
+        .obs-box {
+            background: transparent !important;
+            border: 1px dashed #000000 !important;
+            color: #000000 !important;
+        }
+
+        .border-bottom {
+            border-bottom: 1px dashed #000000 !important;
+        }
+
+        .signature-dash-line {
+            border-top: 1.5px dashed #000000 !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-2 px-md-4 py-3 doc-container" style="max-width: 860px; margin: 0 auto;">
+
+    <!-- Barra Superior de Navegación -->
+    <div class="d-flex justify-content-between align-items-center mb-3 page-header-actions">
+        <a href="{% url 'compras_transferencias' %}" class="text-secondary text-decoration-none" style="font-size: 0.75rem;">
+            &larr; Volver al listado
+        </a>
+        <button type="button" onclick="window.print()" class="btn-print-executive">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Imprimir Comprobante
+        </button>
+    </div>
+
+    <!-- Documento Ejecutivo con marco de guiones -->
+    <div class="doc-card">
+        
+        <!-- Cabecera de Empresa y Folio -->
+        <div class="d-flex justify-content-between align-items-start pb-3 mb-3 border-bottom" style="border-bottom: 1px dashed rgba(255,255,255,0.2) !important;">
+            <div>
+                <div class="fw-semibold mb-1" style="font-size: 0.68rem; letter-spacing: 0.05em; color: #a1a1aa;">
+                    RFA&T/SYS // SISTEMAS DE GESTIÓN Y CONTROL
+                </div>
+                <h1 class="text-white fw-semibold m-0" style="font-size: 1.15rem;">
+                    COMPROBANTE DE TRASLADO INTERNO
+                </h1>
+                <div class="mt-1" style="font-size: 0.76rem; color: #d4d4d8;">
+                    N° de Registro: <span class="font-monospace text-white fw-medium">#{{ transferencia.numero_transferencia }}</span>
+                </div>
+            </div>
+            
+            <div class="text-end">
+                <span class="d-inline-block px-2 py-0.5 rounded" style="font-size: 0.68rem; font-weight: 600; background: rgba(255,255,255,0.08); color: #ffffff; border: 1px dashed rgba(255,255,255,0.3);">
+                    CONFIRMADO
+                </span>
+                <div class="mt-1.5" style="font-size: 0.74rem; color: #d4d4d8;">
+                    Fecha: <strong class="text-white fw-medium">{{ transferencia.fecha|date:"d/m/Y" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque de Origen, Destino y Auditoría -->
+        <div class="row g-3 mb-3 pb-2 border-bottom" style="border-bottom: 1px dashed rgba(255,255,255,0.15) !important;">
+            <div class="col-12 col-md-4">
+                <span class="doc-label">Depósito de Origen</span>
+                <div class="dep-badge">{{ transferencia.deposito_origen.nombre }}</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <span class="doc-label">Depósito de Destino</span>
+                <div class="dep-badge">{{ transferencia.deposito_destino.nombre }}</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <span class="doc-label">Registrado por</span>
+                <div class="doc-value" style="font-size: 0.8rem;">
+                    {{ transferencia.creado_por.get_full_name|default:transferencia.creado_por.username }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Artículos -->
+        <div class="mb-3">
+            <span class="doc-label mb-1.5">Detalle de Mercadería Movilizada</span>
+            <div class="table-responsive rounded" style="border: 1px dashed rgba(255,255,255,0.2);">
+                <table class="table-executive">
+                    <thead>
+                        <tr>
+                            <th style="width: 130px;">Código SKU</th>
+                            <th>Descripción</th>
+                            <th class="text-end" style="width: 110px;">Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for det in transferencia.detalles.all %}
+                        <tr>
+                            <td class="font-monospace text-light" style="font-size: 0.74rem;">
+                                {{ det.articulo.codigo }}
+                            </td>
+                            <td>
+                                <strong class="text-white">{{ det.articulo.nombre }}</strong>
+                                {% if det.articulo.presentacion %}
+                                    <span style="font-size: 0.74rem; color: #a1a1aa;">({{ det.articulo.presentacion }})</span>
+                                {% endif %}
+                            </td>
+                            <td class="font-monospace fw-semibold text-end text-white">
+                                {{ det.cantidad|floatformat:0 }} un.
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-3" style="color: #a1a1aa;">
+                                No se encontraron artículos asociados a este traslado.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Observaciones -->
+        <div class="mb-4">
+            <span class="doc-label">Motivo u Observación</span>
+            <div class="p-2.5 rounded obs-box" style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15); font-size: 0.78rem; color: #e4e4e7;">
+                {{ transferencia.observaciones|default:"Traslado operativo interno sin observaciones adicionales." }}
+            </div>
+        </div>
+
+        <!-- Firmas Formales para Archivo con Guiones -->
+        <div class="row pt-4 text-center" style="margin-top: 2.5rem;">
+            <div class="col-6">
+                <div class="signature-slot">
+                    <div class="signature-dash-line"></div>
+                    <div class="text-white fw-medium" style="font-size: 0.8rem; letter-spacing: 0.03em;">EMITIDO POR</div>
+                    <div style="font-size: 0.72rem; color: #a1a1aa; margin-top: 0.2rem;">Firma</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="signature-slot">
+                    <div class="signature-dash-line"></div>
+                    <div class="text-white fw-medium" style="font-size: 0.8rem; letter-spacing: 0.03em;">RECIBIDO POR</div>
+                    <div style="font-size: 0.72rem; color: #a1a1aa; margin-top: 0.2rem;">Firma</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Proveedores — ADS // RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025) !important;
+        border: 1px solid var(--rfa-border) !important;
+        border-radius: var(--rfa-radius-sm);
+        color: #ffffff !important;
+        font-size: 0.78rem;
+        padding: 0.38rem 0.65rem;
+        outline: none;
+    }
+    .form-control-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.28) !important;
+    }
+    .form-label-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        line-height: 1;
+    }
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+    .status-pill {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.25rem 0.55rem;
+        border-radius: var(--rfa-radius-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 1px solid transparent;
+        line-height: 1;
+    }
+    .status-pill.activo {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.35);
+    }
+    .status-pill.inactivo {
+        color: #fca5a5;
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.35);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-3">
+
+    <!-- CABECERA -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="tag-dot" style="background-color: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
+                <span class="font-monospace text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #7dd3fc;">
+                    ADS // GESTIÓN DE PROVEEDORES & DISTRIBUIDORES
+                </span>
+            </div>
+            <h1 class="page-title mb-0" style="font-size: 1.25rem; font-weight: 600; color: #ffffff;">Catálogo de Proveedores</h1>
+        </div>
+
+        <!-- Badge Técnico: Operador / Usuario Activo Calibrado -->
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace ms-auto" 
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;"></span>
+            <span class="text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">{{ tr_actual.creado_por.username|default:request.user.username }}</strong>
+            </span>
+        </div>
+
+            <!-- Botón Nuevo -->
+            <a href="#" class="btn-action-accent">
+                <span>Registrar Proveedor</span>
+                <span style="font-size: 0.85rem;">&rarr;</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE CONTROL -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">PROVEEDORES ACTIVOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_activos }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot green"></span>Habilitados para compras</span>
+            </div>
+        </div>
+        <div class="col-12 col-sm-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">INACTIVOS / BLOQUEADOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_inactivos }}</div>
+                <span class="tag-badge font-monospace">Pausados administrativamente</span>
+            </div>
+        </div>
+        <div class="col-12 col-sm-4">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">TOTAL REGISTRADOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_total }}</div>
+                <span class="tag-badge font-monospace">Base central de proveedores</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="linear-card p-0" style="overflow: hidden;">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center gap-3" style="border-color: var(--rfa-border) !important;">
+            <span class="font-monospace text-secondary" style="font-size: 0.75rem;">REGISTROS AUDITADOS</span>
+            <div style="min-width: 250px;">
+                <input type="text" class="form-control-tech font-monospace" placeholder="Buscar por RUC, empresa, rubro...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-linear m-0 w-100 font-monospace" style="font-size: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th style="padding: 10px 14px; width: 60px;">#</th>
+                        <th>RAZÓN SOCIAL</th>
+                        <th style="width: 130px;">RUC</th>
+                        <th>CONTACTO COMERCIAL</th>
+                        <th style="width: 140px;">TELÉFONO</th>
+                        <th>RUBRO PRINCIPAL</th>
+                        <th class="text-center" style="width: 100px;">CRÉDITO</th>
+                        <th class="text-center" style="width: 110px;">ESTADO</th>
+                        <th class="text-center" style="width: 60px; padding-right: 14px;">ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in proveedores %}
+                    <tr>
+                        <td style="padding: 10px 14px;" class="text-secondary">{{ p.id }}</td>
+                        <td><strong class="text-white fw-medium">{{ p.razon_social }}</strong></td>
+                        <td class="text-secondary">{{ p.ruc }}</td>
+                        <td class="text-light">{{ p.contacto }}</td>
+                        <td class="text-secondary">{{ p.telefono }}</td>
+                        <td class="text-light">{{ p.rubro }}</td>
+                        <td class="text-center text-white">{{ p.credito_dias }} días</td>
+                        <td class="text-center">
+                            {% if p.estado == 'activo' %}
+                                <span class="status-pill activo"><span class="tag-dot" style="background: #22c55e;"></span>Activo</span>
+                            {% else %}
+                                <span class="status-pill inactivo"><span class="tag-dot" style="background: #ef4444;"></span>Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center" style="padding-right: 14px;">
+                            <a href="#" class="btn-filter-tech py-0.5 px-1.5 text-decoration-none" title="Editar ficha">✎</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-secondary">No hay proveedores registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

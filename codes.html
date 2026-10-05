@@ -1,0 +1,79 @@
+django-admin startproject rfasys .
+python manage.py migrate (crea tabalas)
+python manage.py startapp '---' (crear carpeta)
+python manage.py runserver (inicia el servidor)
+python -m venv env (crear entorno virtual)
+
+
+
+$$\textbf{[FAMILIA]} - \textbf{[MARCA]} - \textbf{[NÚMERO]} \quad (+ \text{ OPCIONAL: } \textbf{[SUFIJO]})$$
+
+ FAMILIA (3 letras): Define qué tipo de cosa es. Solo necesitas memorizar 6 o 7 básicas:
+ 
+ LUB = Lubricantes y líquidos (aceites, refrigerantes, líquido de frenos, sprays de cadena).
+
+
+ TRA = Transmisión (cadenas, piñones, coronas).
+
+
+ FRE = Frenos (pastillas, discos, zapatas).
+
+
+ MOT = Motor y filtros (filtros de aire, filtros de aceite, bujías).
+
+
+ IND = Indumentaria (guantes, camperas, botas).
+ ACC = Accesorios varios (sliders, espejos, soportes de celular, luces).
+
+
+ MARCA (3 letras): Las primeras 3 letras del fabricante:
+ MOT = Motul | CAS = Castrol | YAM = Yamalube | DID = D.I.D | ALP = Alpinestars | LS2 = LS2 | NIS = Nissin.
+
+
+ NÚMERO (3 dígitos correlativos): Empiezas en 001 para el primer producto de esa marca que te llegue, 002 para el segundo, y así sucesivamente.
+ SUFIJO (Solo si tiene variante):
+ Presentación de volumen: -1L, -4L, -20L, -400M (400ml).
+ Tallas de ropa/cascos: -S, -M, -L, -XL.
+
+
+
+---
+
+ 2. Ejemplos Reales para tu Taller/Tienda
+
+| Si llega en la factura del proveedor... | Código sugerido | Nombre en Admin | Presentación |
+| --- | --- | --- | --- |
+| Aceite Motul 7100 10W40 1L | LUB-MOT-001 | Aceite Motul 7100 10W40 4T Sintético | 1L |
+| Aceite Motul 7100 10W40 4L | LUB-MOT-001-4L | Aceite Motul 7100 10W40 4T Sintético | 4L |
+| Grasa de Cadena Motul C2 Spray | LUB-MOT-002 | Grasa Lubricante Cadena Motul C2 | 400ml |
+| Aceite Yamalube 20W50 Mineral | LUB-YAM-001 | Aceite Yamalube 4T 20W50 Mineral | 1L |
+| Cadena D.I.D 520 Dorada 118L | TRA-DID-001 | Cadena Transmisión D.I.D 520VX3 | 118 Eslabones |
+| Pastilha de Freno Trasera Duke 200 | FRE-NIS-001 | Pastillas de Freno Traseras Nissin | Estándar |
+| Casco LS2 Rookie Negro Mate Talla L | CAS-LS2-001-L | Casco Integral LS2 FF352 Rookie Solid | L |
+| Guantes Alpinestars SMX-1 Talla M | IND-ALP-001-M | Guantes Cuero/Mesh Alpinestars SMX-1 | M |
+
+---
+
+ 3. Cómo dar de alta los primeros 3 productos de prueba hoy mismo
+
+Para probar la pantalla de Nuevo Ingreso, entra a [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/), ve a Artículos / Productos y haz clic en + Add:
+
+ Producto 1:
+ Código: LUB-MOT-001
+ Nombre: Aceite Motul 7100 10W40 4T Sintético
+ Presentación: 1L
+ Último Costo: 85000
+
+
+ Producto 2:
+ Código: TRA-DID-001
+ Nombre: Cadena de Transmisión D.I.D 520VX3
+ Presentación: 118L
+ Último Costo: 380000
+
+
+ Producto 3:
+ Código: CAS-LS2-001-L
+ Nombre: Casco LS2 Rookie Negro Mate
+ Presentación: Talla L
+ Último Costo: 450000

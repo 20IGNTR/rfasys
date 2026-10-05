@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    /* Selectores en 2D clásico (Plano y sin relieve nativo) */
+    .form-select-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025) !important;
+        border: 1px solid var(--rfa-border) !important;
+        border-radius: var(--rfa-radius-sm);
+        color: var(--rfa-text) !important;
+        font-family: inherit !important; /* Tipografía clásica estándar, no monospace */
+        font-size: 0.8rem;
+        padding: 0.38rem 1.8rem 0.38rem 0.65rem;
+        transition: all 0.15s ease;
+        outline: none;
+        cursor: pointer;
+
+        /* Elimina el efecto 3D / botón nativo de macOS */
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+
+        /* Flecha técnica 2D SVG sutil */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239E9E9E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.65rem center !important;
+        background-size: 11px !important;
+    }
+
+    .form-select-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.25) !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+    }
+
+    .form-select-tech option {
+        background-color: #161616;
+        color: #ffffff;
+    }
+
+    .form-control-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025) !important;
+        border: 1px solid var(--rfa-border) !important;
+        border-radius: var(--rfa-radius-sm);
+        color: #ffffff !important;
+        font-size: 0.8rem;
+        padding: 0.38rem 0.65rem;
+        outline: none;
+    }
+    .form-control-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.25) !important;
+        box-shadow: none !important;
+    }
+    .form-label-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+    .req-dot {
+        display: inline-block;
+        width: 4px;
+        height: 4px;
+        background-color: var(--rfa-accent);
+        border-radius: 50%;
+        margin-left: 4px;
+        vertical-align: middle;
+    }
+    /* Botón de acción naranja neón reactivo */
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        line-height: 1;
+    }
+
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-3">
+
+    <!-- CABECERA PRINCIPAL -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <span class="tag-dot" style="background-color: #f97316; box-shadow: 0 0 8px #f97316;"></span>
+            <span class="font-monospace text-uppercase" style="font-size: 0.78rem; letter-spacing: 0.05em; color: #fdba74;">
+                LOGÍSTICA // GARANTÍAS & REPOSICIONES
+            </span>
+        </div>
+
+         <!-- Badge Técnico: Operador / Usuario Activo Calibrado -->
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace ms-auto" 
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;"></span>
+            <span class="text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">{{ tr_actual.creado_por.username|default:request.user.username }}</strong>
+            </span>
+        </div>
+    </div>
+
+    <!-- TARJETA SUPERIOR: CONSOLA DE REGISTRO -->
+    <div class="linear-card mb-4 p-0" style="overflow: hidden;">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="border-color: var(--rfa-border) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span class="tag-dot orange"></span>
+                <span class="font-monospace text-white fw-medium" style="font-size: 0.8rem; letter-spacing: 0.04em;">NUEVA REPOSICIÓN / GARANTÍA DE PRODUCTO</span>
+            </div>
+            <button type="submit" class="btn-action-accent">
+                <span>Confirmar Reposición</span>
+                <span style="font-size: 0.85rem;">&rarr;</span>
+            </button>
+        </div>
+
+        <div class="p-3">
+            <!-- FILA 1: DATOS DEL COMPROBANTE -->
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-md-3">
+                    <label class="form-label-tech">Origen de la Garantía<span class="req-dot"></span></label>
+                    <select class="form-select-tech font-monospace" name="tipo_origen">
+                        <option value="factura">Factura de Venta / Mostrador</option>
+                        <option value="orden_taller">Orden de Taller (OT)</option>
+                        <option value="sin_doc">Sin Documento / Interna</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label class="form-label-tech">N° Comprobante / OT<span class="req-dot"></span></label>
+                    <input type="text" class="form-control-tech font-monospace" placeholder="Ej: FAC-00124 / #OT-00003" name="referencia_doc">
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label class="form-label-tech">Motivo / Causal<span class="req-dot"></span></label>
+                    <select class="form-select-tech font-monospace" name="motivo">
+                        <option value="falla_fabrica">Falla de Fábrica / Defectuoso</option>
+                        <option value="vencido">Producto Vencido / Inapropiado</option>
+                        <option value="incompatible">Incompatibilidad de Modelo / Talla</option>
+                        <option value="garantia_servicio">Garantía / Negligencia en Taller</option>
+                        <option value="otro">Otro Motivo Técnico</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label class="form-label-tech">Fecha de Operación<span class="req-dot"></span></label>
+                    <input type="date" class="form-control-tech font-monospace" value="{% now 'Y-m-d' %}" name="fecha">
+                </div>
+            </div>
+
+            <!-- FILA 2: CONTENEDOR ENTRADA VS SALIDA -->
+            <div class="row g-3 mb-3">
+                <!-- ENTRADA: PRODUCTO DEVUELTO -->
+                <div class="col-12 col-lg-6">
+                    <div class="p-3 rounded h-100" style="background: rgba(239, 68, 68, 0.03); border: 1px dashed rgba(239, 68, 68, 0.25);">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="tag-dot" style="background-color: #ef4444; box-shadow: 0 0 6px #ef4444;"></span>
+                            <span class="font-monospace text-uppercase" style="font-size: 0.72rem; color: #fca5a5;">
+                                [ENTRADA] PRODUCTO DEFECTUOSO / DEVUELTO
+                            </span>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-9">
+                                <label class="form-label-tech" style="font-size: 0.68rem;">Artículo Devuelto</label>
+                                <select class="form-select-tech font-monospace" name="articulo_devuelto">
+                                    <option selected disabled value="">Seleccionar artículo...</option>
+                                    {% for art in articulos %}
+                                        <option value="{{ art.id }}">{{ art.nombre }}{% if art.presentacion %} ({{ art.presentacion }}){% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label class="form-label-tech" style="font-size: 0.68rem;">Cant.</label>
+                                <input type="number" class="form-control-tech font-monospace text-end" value="1" min="1" name="cant_devuelta">
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <label class="form-label-tech" style="font-size: 0.68rem;">Destino Físico</label>
+                                <select class="form-select-tech font-monospace" name="destino_defectuoso">
+                                    <option value="scrap">Baja Definitiva / Desecho (Scrap)</option>
+                                    <option value="deposito_fallas">Depósito de Garantías / Reclamo Prov.</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SALIDA: PRODUCTO NUEVO ENTREGADO -->
+                <div class="col-12 col-lg-6">
+                    <div class="p-3 rounded h-100" style="background: rgba(34, 197, 94, 0.03); border: 1px dashed rgba(34, 197, 94, 0.25);">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e;"></span>
+                            <span class="font-monospace text-uppercase" style="font-size: 0.72rem; color: #86efac;">
+                                [SALIDA STOCK] PRODUCTO NUEVO ENTREGADO
+                            </span>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-9">
+                                <label class="form-label-tech" style="font-size: 0.68rem;">Artículo Entregado</label>
+                                <select class="form-select-tech font-monospace" name="articulo_entregado">
+                                    <option selected disabled value="">Seleccionar del catálogo...</option>
+                                    {% for art in articulos %}
+                                        <option value="{{ art.id }}">{{ art.nombre }}{% if art.presentacion %} ({{ art.presentacion }}){% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <label class="form-label-tech" style="font-size: 0.68rem;">Cant.</label>
+                                <input type="number" class="form-control-tech font-monospace text-end" value="1" min="1" name="cant_entregada">
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <label class="form-label-tech" style="font-size: 0.68rem;">Descontar del Depósito</label>
+                                <select class="form-select-tech font-monospace" name="deposito_salida">
+                                    <option selected disabled value="">Seleccionar depósito...</option>
+                                    {% for dep in depositos %}
+                                        <option value="{{ dep.id }}">{{ dep.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILA 3: OBSERVACIÓN EN SU PROPIA LÍNEA VERTICAL -->
+            <div>
+                <label class="form-label-tech">JUSTIFICACIÓN TÉCNICA / OBSERVACIÓN DE LA REPOSICIÓN</label>
+                <input type="text" class="form-control-tech font-monospace" name="observaciones" 
+                       placeholder="Ej: Se rompió soporte de pantalla por ajuste deficiente en OT-00002; se entrega unidad nueva sin costo para el cliente.">
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA INFERIOR: HISTORIAL DE REPOSICIONES Y GARANTÍAS -->
+    <div class="linear-card p-0" style="overflow: hidden;">
+        <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2" style="border-color: var(--rfa-border) !important;">
+            <div class="d-flex align-items-center gap-2">
+                <span class="tag-dot" style="background-color: #3b82f6; box-shadow: 0 0 6px #3b82f6;"></span>
+                <span class="font-monospace text-secondary" style="font-size: 0.72rem; letter-spacing: 0.04em;">HISTORIAL DE GARANTÍAS & CAMBIOS</span>
+            </div>
+            <div style="min-width: 260px;">
+                <input type="text" class="form-control-tech font-monospace" placeholder="Filtrar por N°, comprobante, ítem...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-linear m-0 w-100 font-monospace" style="font-size: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th style="padding: 10px 14px;">N° GARANTÍA</th>
+                        <th>FECHA</th>
+                        <th>COMPROBANTE ORIGEN</th>
+                        <th>CAUSAL</th>
+                        <th>PRODUCTO CAMBIADO</th>
+                        <th>SALIDA DE STOCK</th>
+                        <th>OPERADOR</th>
+                        <th class="text-end" style="padding-right: 14px;">ESTADO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px 14px;">
+                            <span class="d-inline-flex px-1.5 py-0.5" style="color: #93c5fd; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--rfa-radius-sm);">
+                                #GAR-00001
+                            </span>
+                        </td>
+                        <td class="text-secondary">30 Sep 2026</td>
+                        <td class="text-light">FAC-00045</td>
+                        <td><span class="text-warning">Vencido</span></td>
+                        <td class="text-light">Aceite Motul 7100 10W40 (1L) &rarr; Motul 7100 10W40 (1L)</td>
+                        <td><span class="tag-badge">Tienda (-1 un.)</span></td>
+                        <td class="text-secondary">@igntr</td>
+                        <td class="text-end" style="padding-right: 14px;">
+                            <span class="d-inline-flex align-items-center gap-1 px-2 py-0.5" style="background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--rfa-radius-sm); color: #86efac; font-size: 0.7rem;">
+                                &bull; Repuesto
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px 14px;">
+                            <span class="d-inline-flex px-1.5 py-0.5" style="color: #93c5fd; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--rfa-radius-sm);">
+                                #GAR-00002
+                            </span>
+                        </td>
+                        <td class="text-secondary">01 Oct 2026</td>
+                        <td class="text-light">OT-00002</td>
+                        <td><span class="text-danger">Garantía Taller</span></td>
+                        <td class="text-light">Pantalla Navegación GPS (Rotura de soporte)</td>
+                        <td><span class="tag-badge">Taller (-1 un.)</span></td>
+                        <td class="text-secondary">@igntr</td>
+                        <td class="text-end" style="padding-right: 14px;">
+                            <span class="d-inline-flex align-items-center gap-1 px-2 py-0.5" style="background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: var(--rfa-radius-sm); color: #86efac; font-size: 0.7rem;">
+                                &bull; Asumido
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

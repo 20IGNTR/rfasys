@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Facturación & Ventas — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025) !important;
+        border: 1px solid var(--rfa-border) !important;
+        border-radius: var(--rfa-radius-sm);
+        color: #ffffff !important;
+        font-size: 0.78rem;
+        padding: 0.38rem 0.65rem;
+        outline: none;
+    }
+    .form-control-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.28) !important;
+    }
+    .form-label-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        line-height: 1;
+    }
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+    .btn-filter-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        background: transparent;
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text-secondary);
+        padding: 0.3rem 0.65rem;
+        border-radius: var(--rfa-radius-sm);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-filter-tech:hover, .btn-filter-tech.active {
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .status-pill {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.28rem 0.55rem;
+        border-radius: var(--rfa-radius-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border: 1px solid transparent;
+        line-height: 1;
+    }
+    .status-pill.cobrado {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.35);
+    }
+    .status-pill.pendiente {
+        color: #fde047;
+        background: rgba(234, 179, 8, 0.08);
+        border-color: rgba(234, 179, 8, 0.35);
+    }
+    .status-pill.anulado {
+        color: #fca5a5;
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.35);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-3">
+
+    <!-- CABECERA PRINCIPAL -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="tag-dot" style="background-color: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
+                <span class="font-monospace text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #7dd3fc;">
+                    VENTAS // FACTURACIÓN & REGISTRO FISCAL
+                </span>
+            </div>
+            <h1 class="page-title mb-0" style="font-size: 1.25rem; font-weight: 600; color: #ffffff;">Emisión de Facturas & Ventas</h1>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 ms-auto">
+            <!-- Badge Técnico: Operador / Usuario Activo Calibrado -->
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace ms-auto" 
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;"></span>
+            <span class="text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">{{ tr_actual.creado_por.username|default:request.user.username }}</strong>
+            </span>
+        </div>
+
+            <!-- Botón Nueva Venta / Factura -->
+            <a href="#" class="btn-action-accent">
+                <span>+ Nueva Venta / Factura</span>
+                <span style="font-size: 0.85rem;">&rarr;</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE KPIS SUPERIORES -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Total Facturado -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">VENTAS FACTURADAS (MES)</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">Gs. {{ total_facturado_mes }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot green"></span>Ingresos liquidados</span>
+            </div>
+        </div>
+
+        <!-- 2. Facturas Cobradas -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">COMPROBANTES COBRADOS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_cobradas }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #4ade80;"></span>Efectivo / Transferencia</span>
+            </div>
+        </div>
+
+        <!-- 3. Créditos Pendientes de Cobro -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">CRÉDITOS PENDIENTES</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_pendientes_cobro }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #facc15;"></span>Cuentas por cobrar</span>
+            </div>
+        </div>
+
+        <!-- 4. Total Comprobantes Emitidos -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">TOTAL FACTURAS EMITIDAS</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_total }}</div>
+                <span class="tag-badge font-monospace">Libro IVA Ventas</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANDEJA DE FACTURAS -->
+    <div class="linear-card p-0" style="overflow: hidden;">
+        <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3" style="border-color: var(--rfa-border) !important;">
+            <!-- Filtros rápidos -->
+            <div class="d-flex flex-wrap align-items-center gap-1.5">
+                <button type="button" class="btn-filter-tech active">Todas ({{ cant_total }})</button>
+                <button type="button" class="btn-filter-tech">Cobradas</button>
+                <button type="button" class="btn-filter-tech">A Crédito</button>
+                <button type="button" class="btn-filter-tech">Mostrador</button>
+                <button type="button" class="btn-filter-tech">Taller</button>
+            </div>
+
+            <!-- Buscador reactivo -->
+            <div style="min-width: 250px;">
+                <input type="text" class="form-control-tech font-monospace" placeholder="Buscar por cliente, N° factura, RUC...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-linear m-0 w-100 font-monospace" style="font-size: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th style="padding: 10px 14px; width: 140px;">N° FACTURA</th>
+                        <th style="width: 100px;">TIMBRADO</th>
+                        <th>CLIENTE</th>
+                        <th style="width: 110px;">RUC / CI</th>
+                        <th style="width: 95px;">FECHA</th>
+                        <th style="width: 85px;">CONDICIÓN</th>
+                        <th>MÉTODO / ORIGEN</th>
+                        <th class="text-end" style="width: 120px;">TOTAL (Gs.)</th>
+                        <th>EMITIDO</th>
+                        <th class="text-center" style="width: 110px;">ESTADO</th>
+                        <th class="text-center" style="width: 60px; padding-right: 14px;">DOC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in facturas %}
+                    <tr style="cursor: pointer;">
+                        <!-- N° FACTURA -->
+                        <td style="padding: 10px 14px;">
+                            <strong class="text-white fw-medium">{{ f.numero_factura }}</strong>
+                        </td>
+
+                        <!-- TIMBRADO -->
+                        <td class="text-secondary">{{ f.timbrado }}</td>
+
+                        <!-- CLIENTE -->
+                        <td class="text-light">{{ f.cliente_nombre }}</td>
+
+                        <!-- RUC / CI -->
+                        <td class="text-secondary">{{ f.cliente_ruc }}</td>
+
+                        <!-- FECHA -->
+                        <td class="text-secondary">{{ f.fecha }}</td>
+
+                        <!-- CONDICIÓN -->
+                        <td>
+                            {% if f.condicion == 'contado' %}
+                                <span class="tag-badge" style="color: #86efac; border-color: rgba(34, 197, 94, 0.3);">Contado</span>
+                            {% else %}
+                                <span class="tag-badge" style="color: #7dd3fc; background-color: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.35);">
+                                    Crédito
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- MÉTODO / ORIGEN -->
+                        <td>
+                            <div class="text-light">{{ f.metodo_pago }}</div>
+                            <div class="text-muted" style="font-size: 0.68rem;">{{ f.origen }}</div>
+                        </td>
+
+                        <!-- TOTAL -->
+                        <td class="text-end text-white fw-semibold">{{ f.total_general }}</td>
+
+                        <!-- OPERADOR -->
+                        <td class="text-secondary">@{{ f.operador }}</td>
+
+                        <!-- ESTADO -->
+                        <td class="text-center">
+                            {% if f.estado == 'cobrado' %}
+                                <span class="status-pill cobrado"><span style="background: #4ade80;"></span>Cobrado</span>
+                            {% elif f.estado == 'pendiente' %}
+                                <span class="status-pill pendiente"><span style="background: #facc15;"></span>Pendiente</span>
+                            {% else %}
+                                <span class="status-pill anulado"><span style="background: #f87171;"></span>Anulado</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- ACCIÓN: IMPRIMIR FACTURA LEGAL -->
+                        <td class="text-center" style="padding-right: 14px;">
+                            <button type="button" class="btn-filter-tech py-0.5 px-1.5" title="Imprimir Comprobante Fiscal">
+                                🖨️
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center py-4 text-secondary">
+                            No hay facturas registradas en el período.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

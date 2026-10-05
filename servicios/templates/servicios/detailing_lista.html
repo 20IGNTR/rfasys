@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Detailing & Estética — RFA&T/SYS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control-tech {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.025) !important;
+        border: 1px solid var(--rfa-border) !important;
+        border-radius: var(--rfa-radius-sm);
+        color: #ffffff !important;
+        font-size: 0.78rem;
+        padding: 0.38rem 0.65rem;
+        outline: none;
+    }
+    .form-control-tech:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.28) !important;
+    }
+    .form-label-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        color: var(--rfa-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    .btn-action-accent {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--rfa-text);
+        background-color: rgba(255, 106, 43, 0.08);
+        border: 1px solid rgba(255, 106, 43, 0.35);
+        border-radius: var(--rfa-radius-sm);
+        padding: 0.4rem 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        line-height: 1;
+    }
+    .btn-action-accent:hover {
+        color: #ffffff !important;
+        background-color: rgba(255, 106, 43, 0.18);
+        border-color: var(--rfa-accent);
+        box-shadow: 0 0 14px rgba(255, 106, 43, 0.28);
+    }
+    .btn-filter-tech {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        background: transparent;
+        border: 1px solid var(--rfa-border);
+        color: var(--rfa-text-secondary);
+        padding: 0.3rem 0.65rem;
+        border-radius: var(--rfa-radius-sm);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-filter-tech:hover, .btn-filter-tech.active {
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .status-pill {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.28rem 0.55rem;
+        border-radius: var(--rfa-radius-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border: 1px solid transparent;
+        line-height: 1;
+    }
+    .status-pill.lavado {
+        color: #93c5fd;
+        background: rgba(59, 130, 246, 0.08);
+        border-color: rgba(59, 130, 246, 0.35);
+    }
+    .status-pill.correccion {
+        color: #fde047;
+        background: rgba(234, 179, 8, 0.08);
+        border-color: rgba(234, 179, 8, 0.35);
+    }
+    .status-pill.ceramico {
+        color: #d8b4fe;
+        background: rgba(168, 85, 247, 0.08);
+        border-color: rgba(168, 85, 247, 0.35);
+    }
+    .status-pill.listo {
+        color: #86efac;
+        background: rgba(34, 197, 94, 0.08);
+        border-color: rgba(34, 197, 94, 0.35);
+    }
+    .btn-trash {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--rfa-text-muted);
+        padding: 0.3rem 0.45rem;
+        border-radius: var(--rfa-radius-sm);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+    .btn-trash:hover {
+        color: #ff5c5c !important;
+        background-color: rgba(255, 59, 59, 0.08);
+        border-color: rgba(255, 59, 59, 0.35);
+        box-shadow: 0 0 12px rgba(255, 59, 59, 0.18);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-3">
+
+    <!-- CABECERA PRINCIPAL -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="tag-dot" style="background-color: #a855f7; box-shadow: 0 0 8px #a855f7;"></span>
+                <span class="font-monospace text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #d8b4fe;">
+                    SERVICIOS // ESTÉTICA, CORRECCIÓN Y CERÁMICO
+                </span>
+            </div>
+            <h1 class="page-title mb-0" style="font-size: 1.25rem; font-weight: 600; color: #ffffff;">Gestión de Detailing</h1>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 ms-auto">
+            <!-- Badge Técnico: Operador / Usuario Activo Calibrado -->
+        <div class="d-inline-flex align-items-center justify-content-center gap-2 font-monospace" 
+            style="min-width: 55px; padding: 0.35rem 0.25rem; background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: var(--rfa-radius-sm); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); line-height: 1;">
+            <span class="tag-dot" style="background-color: #22c55e; box-shadow: 0 0 6px #22c55e; flex-shrink: 0;"></span>
+            <span class="text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #86efac; white-space: nowrap;">
+                <strong class="text-white">{{ tr_actual.creado_por.username|default:request.user.username }}</strong>
+            </span>
+        </div>
+
+            <!-- Botón Nueva Ficha -->
+            <a href="#" class="btn-action-accent">
+                <span>Nueva Ficha Detailing</span>
+                <span style="font-size: 0.85rem;">&rarr;</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- FILA DE KPIS DE ETAPAS -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Lavado / Descontaminado -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">LAVADO & DESCONTAMINADO</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_lavado }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #60a5fa;"></span>Preparación inicial</span>
+            </div>
+        </div>
+
+        <!-- 2. Corrección / Pulido -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">PULIDO & CORRECCIÓN</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_correccion }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #facc15;"></span>Nivelación de barniz</span>
+            </div>
+        </div>
+
+        <!-- 3. Tratamiento Cerámico -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">TRATAMIENTO CERÁMICO</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_ceramico }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #c084fc;"></span>Curado & protección</span>
+            </div>
+        </div>
+
+        <!-- 4. Listo para Entrega -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="linear-card py-3">
+                <span class="form-label-tech">LISTO PARA ENTREGA</span>
+                <div class="font-monospace fw-bold text-white my-1" style="font-size: 1.45rem;">{{ cant_listo }}</div>
+                <span class="tag-badge font-monospace"><span class="tag-dot" style="background: #4ade80;"></span>Finalizado / Retiro</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE CONTROL DE SERVICIOS -->
+    <div class="linear-card p-0" style="overflow: hidden;">
+        <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3" style="border-color: var(--rfa-border) !important;">
+            <!-- Filtros rápidos de estado -->
+            <div class="d-flex flex-wrap align-items-center gap-1.5">
+                <button type="button" class="btn-filter-tech active">Todos ({{ cant_total }})</button>
+                <button type="button" class="btn-filter-tech">Lavado</button>
+                <button type="button" class="btn-filter-tech">Pulido</button>
+                <button type="button" class="btn-filter-tech">Cerámico</button>
+                <button type="button" class="btn-filter-tech">Listo Retiro</button>
+            </div>
+
+            <!-- Buscador reactivo -->
+            <div style="min-width: 250px;">
+                <input type="text" class="form-control-tech font-monospace" placeholder="Buscar por ficha, moto, cliente...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-linear m-0 w-100 font-monospace" style="font-size: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th style="padding: 10px 14px; width: 110px;">N° FICHA</th>
+                        <th>VEHÍCULO</th>
+                        <th style="width: 105px;">MATRÍCULA</th>
+                        <th>CLIENTE</th>
+                        <th>TRATAMIENTO SOLICITADO</th>
+                        <th class="text-center" style="width: 120px;">TOTAL (Gs.)</th>
+                        <th>OPERADOR</th>
+                        <th>MODIFICADO</th>
+                        <th class="text-center" style="width: 150px;">ETAPA</th>
+                        <th class="text-center" style="width: 45px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in servicios %}
+                    <tr style="cursor: pointer;">
+                        <!-- 1. N° FICHA -->
+                        <td style="padding: 10px 14px;">
+                            <span class="d-inline-flex px-1.5 py-0.5" style="color: #d8b4fe; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: var(--rfa-radius-sm);">
+                                #DET-{{ s.numero_ficha }}
+                            </span>
+                        </td>
+
+                        <!-- 2. VEHÍCULO -->
+                        <td>
+                            <strong class="text-white fw-medium">{{ s.moto_modelo }}</strong>
+                        </td>
+
+                        <!-- 3. MATRÍCULA -->
+                        <td class="text-secondary text-uppercase">{{ s.moto_placa }}</td>
+
+                        <!-- 4. CLIENTE -->
+                        <td class="text-light">{{ s.cliente_nombre }}</td>
+
+                        <!-- 5. TRATAMIENTO -->
+                        <td class="text-secondary" style="font-size: 0.72rem;">{{ s.tratamiento }}</td>
+
+                        <!-- 6. MONTO -->
+                        <td class="text-center text-white fw-semibold">{{ s.monto }}</td>
+
+                        <!-- 7. OPERADOR -->
+                        <td class="text-secondary">@{{ s.operador }}</td>
+
+                        <!-- 8. MODIFICADO -->
+                        <td>
+                            {% if s.modificado %}
+                                <span class="d-inline-flex align-items-center gap-1 text-secondary" style="font-size: 0.7rem;">
+                                    <span class="tag-dot orange"></span> Editado
+                                </span>
+                            {% else %}
+                                <span class="text-white" style="font-size: 0.7rem;">Sin cambios</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- 9. ETAPA -->
+                        <td class="text-center">
+                            {% if s.etapa == 'lavado' %}
+                                <span class="status-pill lavado">
+                                    <span class="tag-dot" style="background: #60a5fa;"></span>Lavado
+                                </span>
+                            {% elif s.etapa == 'correccion' %}
+                                <span class="status-pill correccion">
+                                    <span class="tag-dot" style="background: #facc15;"></span>Pulido
+                                </span>
+                            {% elif s.etapa == 'ceramico' %}
+                                <span class="status-pill ceramico">
+                                    <span class="tag-dot" style="background: #c084fc;"></span>Cerámico
+                                </span>
+                            {% else %}
+                                <span class="status-pill listo">
+                                    <span class="tag-dot" style="background: #4ade80;"></span>Listo
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- 10. ELIMINAR -->
+                        <td class="text-center" style="padding-right: 14px;">
+                            <button type="button" class="btn-trash" title="Eliminar ficha">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center py-4 text-secondary">
+                            No hay fichas de detailing registradas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

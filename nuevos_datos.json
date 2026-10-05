@@ -1,0 +1,336 @@
+[
+{
+  "model": "compras.articulo",
+  "pk": 1,
+  "fields": {
+    "codigo": "LUB-MOB-15W50S",
+    "nombre": "Lubricante Mobil Sintetico",
+    "presentacion": "1L",
+    "costo_referencia": "100000.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 2,
+  "fields": {
+    "codigo": "LUB-MOB-20W50",
+    "nombre": "Lubricante Mobil Mineral",
+    "presentacion": "1L",
+    "costo_referencia": "50000.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 3,
+  "fields": {
+    "codigo": "LUB-MOB-10W30",
+    "nombre": "Lubricante Mobil SemiSintetico",
+    "presentacion": "1L",
+    "costo_referencia": "75000.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 4,
+  "fields": {
+    "codigo": "LUB-MOB-10W40",
+    "nombre": "Lubricante Mobil SemiSintetico",
+    "presentacion": "1L",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 5,
+  "fields": {
+    "codigo": "LUB-MOB-15W50",
+    "nombre": "Lubricante Mobil SemiSintetico",
+    "presentacion": "1L",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 6,
+  "fields": {
+    "codigo": "LUB-MOB-2T",
+    "nombre": "Lubricante Mobil 2 Tiempos",
+    "presentacion": "1L",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 7,
+  "fields": {
+    "codigo": "FIL-AIR-MT09",
+    "nombre": "Filtro De Aire Yamaha MT09",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 8,
+  "fields": {
+    "codigo": "FIL-AIR-MT07",
+    "nombre": "Filtro De Aire Yamaha MT07",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 9,
+  "fields": {
+    "codigo": "FIL-AIR-MT03",
+    "nombre": "Filtro De Aire Yamaha MT03",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 10,
+  "fields": {
+    "codigo": "FIL-AIR-VG300",
+    "nombre": "Filtro De Aire Voge 300 Ds/Rally",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 11,
+  "fields": {
+    "codigo": "REL-SEN-UNV",
+    "nombre": "Relay Senalero Universal 5V",
+    "presentacion": "PAR",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 12,
+  "fields": {
+    "codigo": "PAS-TRA-KYB",
+    "nombre": "Past. Tras. KTM Duke 200/390 BMW 650/310/7-800",
+    "presentacion": "PAR",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 13,
+  "fields": {
+    "codigo": "FIL-ACT-YAM",
+    "nombre": "Filtro Aceite Yamaha YZF/R6/FZ1/R1/Mt03-7/CB650",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 14,
+  "fields": {
+    "codigo": "FIL-ACT-KTM",
+    "nombre": "Filtro Aceite Baj. Pulsar 200NS Duke 200 Dominar 400",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 15,
+  "fields": {
+    "codigo": "BAN-DIS-MDL",
+    "nombre": "Bandana Diseño Mandala",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 16,
+  "fields": {
+    "codigo": "BID-PLS-CMBTL",
+    "nombre": "Bidón De Combustible",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 17,
+  "fields": {
+    "codigo": "BOT-ALP-FST4",
+    "nombre": "Botas AlpineStar Faster  3",
+    "presentacion": "PAR",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 18,
+  "fields": {
+    "codigo": "BOT-ALP-FST5",
+    "nombre": "Botas AlpineStar Faster  4",
+    "presentacion": "PAR",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 19,
+  "fields": {
+    "codigo": "BOT-ALP-SEK",
+    "nombre": "Botas AlpineStar Sektor",
+    "presentacion": "PAR",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 20,
+  "fields": {
+    "codigo": "BOT-TIG-OPX",
+    "nombre": "Botas TR One Pro X",
+    "presentacion": "PAR",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 21,
+  "fields": {
+    "codigo": "TNK-BAG-GIVI",
+    "nombre": "TankBag GIVI",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 22,
+  "fields": {
+    "codigo": "TOP-CSG-45LTS",
+    "nombre": "Top Case 45 Lts Gris",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 23,
+  "fields": {
+    "codigo": "TOP-CSN-45LTS",
+    "nombre": "Top Case 45 Lit Negro",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 24,
+  "fields": {
+    "codigo": "TOP-CSG-55LTS",
+    "nombre": "Top Case 55 Lit Gris",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 25,
+  "fields": {
+    "codigo": "TOP-CSN-55LTS",
+    "nombre": "Top Case 55 Lit Negro",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 26,
+  "fields": {
+    "codigo": "TOP-CSG-65LTS",
+    "nombre": "Top Case 65 Lit Gris",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 27,
+  "fields": {
+    "codigo": "TOP-CSN-65LTS",
+    "nombre": "Top Case 65 Lit Negro",
+    "presentacion": "UN",
+    "costo_referencia": "0.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.articulo",
+  "pk": 29,
+  "fields": {
+    "codigo": "LPC-IPO-1X4",
+    "nombre": "Limpia Cadena iPhone",
+    "presentacion": "UN",
+    "costo_referencia": "215000.00",
+    "activo": true
+  }
+},
+{
+  "model": "compras.proveedor",
+  "pk": 1,
+  "fields": {
+    "razon_social": "ATP IMPORT E.A.S.",
+    "ruc": "80130748-1",
+    "timbrado": "123",
+    "telefono": "+595 971 599 000",
+    "correo": "info@atp.com.py",
+    "direccion": "Mariano Roque Alonso Ruta Transchaco km 17,5 esquina Avda. Gral Díaz.",
+    "activo": true
+  }
+},
+{
+  "model": "compras.proveedor",
+  "pk": 2,
+  "fields": {
+    "razon_social": "MARIAM S.A",
+    "ruc": "80045539-8",
+    "timbrado": "16641111",
+    "telefono": "(0981) 234333",
+    "correo": "info@mariamlubricantes.com",
+    "direccion": "AV. DE LA VICTORIA ENTRE DR. JUAN NETTO",
+    "activo": true
+  }
+}
+]
