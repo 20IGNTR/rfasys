@@ -186,26 +186,34 @@
         margin-bottom: 0;
     }
 
-    /* La columna del artículo se expande para ocupar todo el espacio libre */
-    #tablaItemsTransferencia th:first-child,
-    #tablaItemsTransferencia td:first-child {
-        width: auto !important;
-    }
-
-    /* Asegura que el selector ocupe todo el ancho disponible de su columna */
-    #tablaItemsTransferencia .cell-select {
-        width: 100% !important;
-    }
-
-    /* Anchos estrictos para las columnas numéricas y de acción */
-    #tablaItemsTransferencia th:nth-child(2),
-    #tablaItemsTransferencia td:nth-child(2) {
+    /* 1. Columna CÓDIGO: ancho fijo y compacto */
+    #tablaItemsTransferencia th:nth-child(1),
+    #tablaItemsTransferencia td:nth-child(1) {
         width: 130px !important;
     }
 
+    /* 2. Columna ARTÍCULO: ocupa todo el ancho libre restante */
+    #tablaItemsTransferencia th:nth-child(2),
+    #tablaItemsTransferencia td:nth-child(2) {
+        width: auto !important;
+    }
+
+    /* 3. Columna CANTIDAD: ancho compacto a la derecha */
     #tablaItemsTransferencia th:nth-child(3),
     #tablaItemsTransferencia td:nth-child(3) {
+        width: 120px !important;
+    }
+
+    /* 4. Columna BOTÓN QUITAR: tamaño mínimo */
+    #tablaItemsTransferencia th:nth-child(4),
+    #tablaItemsTransferencia td:nth-child(4) {
         width: 45px !important;
+    }
+
+    /* Asegura que el selector y los inputs aprovechen el ancho de su celda */
+    #tablaItemsTransferencia .cell-select,
+    #tablaItemsTransferencia .cell-input {
+        width: 100% !important;
     }
 
     /* 2. Etiqueta para el motivo u observaciones */
@@ -572,6 +580,7 @@
                     <table class="table-items m-0 w-100" id="tablaItemsTransferencia">
                         <thead>
                             <tr>
+                                <th style="width: 130px;">CÓDIGO</th>
                                 <th>ARTÍCULO / PRODUCTO / REPUESTO</th>
                                 <th style="width: 140px;" class="text-end">CANTIDAD</th>
                                 <th style="width: 45px;"></th>
@@ -581,6 +590,10 @@
                             {% if tr_actual %}
                                 {% for det in tr_actual.detalles.all %}
                                 <tr>
+                                    <td>
+                                        <input type="text" class="cell-input font-monospace text-secondary item-codigo" 
+                                               value="{{ det.articulo.codigo|default:'---' }}" placeholder="---" readonly tabindex="-1">
+                                    </td>
                                     <td>
                                         <select class="cell-select item-articulo font-monospace" disabled style="opacity: 0.9;">
                                             {% for art in articulos %}
@@ -601,7 +614,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="3" class="text-center py-2 text-secondary font-monospace" style="font-size: 0.75rem;">
+                                    <td colspan="4" class="text-center py-2 text-secondary font-monospace" style="font-size: 0.75rem;">
                                         Sin artículos registrados en este traslado.
                                     </td>
                                 </tr>
@@ -609,10 +622,13 @@
                             {% else %}
                                 <tr>
                                     <td>
-                                        <select class="cell-select item-articulo" name="articulos[]" required>
+                                        <input type="text" class="cell-input font-monospace text-secondary item-codigo" placeholder="---" readonly tabindex="-1">
+                                    </td>
+                                    <td>
+                                        <select class="cell-select item-articulo" name="articulos[]" onchange="actualizarCodigoTransferencia(this)" required>
                                             <option selected disabled value="">Seleccionar Articulo...</option>
                                             {% for art in articulos %}
-                                                <option value="{{ art.id }}">{{ art.nombre }}{% if art.presentacion %} ({{ art.presentacion }}){% endif %}</option>
+                                                <option value="{{ art.id }}" data-codigo="{{ art.codigo }}">{{ art.nombre }}{% if art.presentacion %} ({{ art.presentacion }}){% endif %}</option>
                                             {% endfor %}
                                         </select>
                                     </td>
@@ -761,10 +777,20 @@
 
 {% block extra_js %}
 <script>
+    function actualizarCodigoTransferencia(selectElem) {
+        const fila = selectElem.closest('tr');
+        const inputCodigo = fila.querySelector('.item-codigo');
+        const opcion = selectElem.options[selectElem.selectedIndex];
+        const codigo = opcion.getAttribute('data-codigo');
+        if (inputCodigo) {
+            inputCodigo.value = codigo || '---';
+        }
+    }
+
     function agregarFilaTransferencia() {
         const tbody = document.getElementById('itemsTransferenciaBody');
         const primerSelect = tbody.querySelector('.item-articulo');
-        let optionsHtml = '<option selected disabled value="">Seleccionar del catálogo...</option>';
+        let optionsHtml = '<option selected disabled value="">Seleccionar Articulo...</option>';
 
         if (primerSelect) {
             optionsHtml = primerSelect.innerHTML;
@@ -773,12 +799,15 @@
         const nuevaFila = document.createElement('tr');
         nuevaFila.innerHTML = `
             <td>
-                <select class="cell-select item-articulo" name="articulos[]" required>
+                <input type="text" class="cell-input font-monospace text-secondary item-codigo" placeholder="---" readonly tabindex="-1">
+            </td>
+            <td>
+                <select class="cell-select item-articulo" name="articulos[]" onchange="actualizarCodigoTransferencia(this)" required>
                     ${optionsHtml}
                 </select>
             </td>
             <td>
-                <input type="number" class="cell-input text-end" name="cantidades[]" value="1" min="1" step="any" required>
+                <input type="number" class="cell-input font-monospace text-end item-cantidad" name="cantidades[]" value="1" min="1" step="any" required>
             </td>
             <td class="text-center">
                 <button type="button" class="btn-row-delete" onclick="eliminarFilaTransferencia(this)" title="Quitar">&times;</button>
@@ -786,7 +815,6 @@
         `;
         tbody.appendChild(nuevaFila);
 
-        // Asegura que la nueva fila quede en la opción por defecto
         const nuevoSelect = nuevaFila.querySelector('.item-articulo');
         if (nuevoSelect) {
             nuevoSelect.selectedIndex = 0;
