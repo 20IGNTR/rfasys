@@ -613,11 +613,8 @@
 
         <!-- Panel 3: Diagnóstico de Ingreso y Trabajo Solicitado -->
         <div class="linear-card py-3">
-            <label class="form-label-tech">Motivo de Ingreso</label>
-            <textarea class="form-control-tech font-monospace mb-2" name="motivo_ingreso" rows="2" placeholder="Describir mantenimiento  o trabajos realizados..." style="font-size: 0.78rem;" required>{{ orden.motivo_ingreso|default:'' }}</textarea>
-            
-            <label class="form-label-tech">Observaciones</label>
-            <textarea class="form-control-tech font-monospace" name="observaciones_vehiculo" rows="2" placeholder="Describir detalles a tener en cuenta, etc." style="font-size: 0.78rem;">{{ orden.observaciones_vehiculo|default:'' }}</textarea>
+            <label class="form-label-tech">Motivo de Ingreso / Observaciones</label>
+            <textarea class="form-control-tech font-monospace mb-2" name="motivo_ingreso" rows="2" placeholder="Describir mantenimiento trabajos realizados y detalles a tener en cuenta..." style="font-size: 0.78rem;" required>{{ orden.motivo_ingreso|default:'' }}</textarea>
         </div>
 
     </div>
