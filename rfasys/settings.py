@@ -153,3 +153,19 @@ if EN_PRODUCCION:
         'MENU_TITLE': 'Menú',
         'GRAVATAR_DEFAULT': 'retro',
     }
+
+    # ==============================================================================
+# SEGURIDAD Y PROTECCIÓN CSRF
+# ==============================================================================
+
+# Dominios autorizados para procesar peticiones POST en HTTPS (PythonAnywhere)
+CSRF_TRUSTED_ORIGINS = [
+    'https://rfaytsys.pythonanywhere.com',
+]
+
+# Permitir que el token CSRF viaje seguro y no se invalide por sesión
+CSRF_COOKIE_SECURE = EN_PRODUCCION  # True en la nube (HTTPS), False en local (HTTP)
+SESSION_COOKIE_SECURE = EN_PRODUCCION
+
+# Evitar desincronizaciones de CSRF con las cookies de sesión
+CSRF_COOKIE_HTTPONLY = False
