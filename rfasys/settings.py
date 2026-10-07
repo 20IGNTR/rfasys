@@ -28,9 +28,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 import os
-
-# Detecta si el código está corriendo en PythonAnywhere
-EN_PRODUCCION = 'PYTHONANYWHERE_DOMAIN' in os.environ or '/home/RfayTsys' in str(BASE_DIR)
+import getpass
+# Detecta si corre en PythonAnywhere por usuario o ruta (sin importar mayúsculas)
+EN_PRODUCCION = getpass.getuser().lower() == 'rfaytsys' or 'rfaytsys' in str(BASE_DIR).lower()
 
 # Application definition
 
