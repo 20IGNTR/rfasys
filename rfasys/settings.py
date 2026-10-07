@@ -27,10 +27,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+import os
+
+# Detecta si el código está corriendo en PythonAnywhere
+EN_PRODUCCION = 'PYTHONANYWHERE_DOMAIN' in os.environ or '/home/RfayTsys' in str(BASE_DIR)
 
 # Application definition
 
 INSTALLED_APPS = [
+    *(['baton'] if EN_PRODUCCION else []),
     'import_export',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -128,3 +133,21 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Redirige automáticamente al login raíz cuando la sesión expire o requiera autenticación
 LOGIN_URL = 'inicio'
+
+if EN_PRODUCCION:
+    BATON = {
+        'SITE_HEADER': 'RFA&T/SYS',
+        'SITE_TITLE': 'RFA&T/SYS Admin',
+        'INDEX_TITLE': 'Administración del Sistema',
+        'SUPPORT_HREF': '#',
+        'COPYRIGHT': 'copyright © 2026 RFA&T/SYS',
+        'POWERED_BY': '<a href="#">RFA&T/SYS</a>',
+        'CONFIRM_UNSAVED_CHANGES': True,
+        'SHOW_MULTIPART_UPLOADING': True,
+        'ENABLE_IMAGES_PREVIEW': True,
+        'CHANGELIST_FILTERS_IN_MODAL': True,
+        'CHANGELIST_FILTERS_ALWAYS_OPEN': False,
+        'MENU_ALWAYS_COLLAPSED': False,
+        'MENU_TITLE': 'Menú',
+        'GRAVATAR_DEFAULT': 'retro',
+    }
