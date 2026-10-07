@@ -84,6 +84,45 @@
         color: #ffffff;
         outline: none;
     }
+    /* Botón Acción Descartar: X con resplandor Rojo Neón */
+    .btn-note-action.delete {
+        background: transparent;
+        border: none;
+        color: var(--rfa-text-muted);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        line-height: 1;
+        padding: 0.15rem 0.35rem;
+        border-radius: var(--rfa-radius-sm);
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    .btn-note-action.delete:hover {
+        color: #ff4d4d !important;
+        background-color: rgba(255, 77, 77, 0.12);
+        box-shadow: 0 0 10px rgba(255, 77, 77, 0.45);
+    }
+
+    /* Botón Acción Editar: ↗ con resplandor Amarillo Neón */
+    .btn-note-action.edit {
+        background: transparent;
+        border: none;
+        color: var(--rfa-text-muted);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82rem;
+        line-height: 1;
+        padding: 0.15rem 0.35rem;
+        border-radius: var(--rfa-radius-sm);
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    .btn-note-action.edit:hover {
+        color: #facc15 !important;
+        background-color: rgba(250, 204, 21, 0.12);
+        box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
+    }
 </style>
 {% endblock %}
 
@@ -143,7 +182,6 @@
 
     <!-- Contenedor Principal de Flujo -->
     <div class="row g-3"> <!-- <--- AGREGA ESTA LÍNEA AQUÍ -->
-
         <!-- Columna de Actividad Reciente / Registro Técnico -->
         <div class="col-12 col-lg-8">
             <div class="linear-card">
@@ -209,34 +247,71 @@
                 <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom" style="border-color: rgba(255, 255, 255, 0.06) !important;">
                     <div class="d-flex align-items-center gap-2">
                         <span class="tag-dot" style="background-color: #f8bb38; box-shadow: 0 0 6px #f88838; width: 5px; height: 5px;"></span>
-                        <span class="font-monospace text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.04em; color: #e2af48;">
+                        <span class="font-monospace text-uppercase" 
+                            role="button"
+                            tabindex="0"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modalHistorialNotas"
+                            style="font-size: 0.72rem; letter-spacing: 0.04em; color: #e2af48; cursor: pointer; transition: all 0.15s ease; user-select: none;"
+                            onmouseover="this.style.opacity='0.75'; this.style.textShadow='0 0 8px rgba(226, 175, 72, 0.4)';"
+                            onmouseout="this.style.opacity='1'; this.style.textShadow='none';"
+                            title="Clic para ver el historial completo de anotaciones">
                             ANOTACIONES/ RECORDATORIOS
                         </span>
                     </div>
-                    <button type="button" class="btn btn-link p-0 text-decoration-none font-monospace text-secondary" style="font-size: 0.68rem;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--rfa-text-secondary)'">
-                        + Nota rápida
+                    <button type="button" class="btn btn-link p-0 text-decoration-none font-monospace text-light" 
+                            style="font-size: 0.68rem;" data-bs-toggle="modal" data-bs-target="#modalNuevaNota"
+                            onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--rfa-text-secondary)'">
+                        + Nueva Nota
                     </button>
                 </div>
 
-                <!-- Lista compacta de avisos -->
+                <!-- Lista dinámica de avisos -->
                 <div class="d-flex flex-column gap-2 font-monospace" style="font-size: 0.73rem;">
-                    <div class="d-flex align-items-center justify-content-between text-truncate py-1 px-2 rounded" style="background: rgba(255, 255, 255, 0.02);">
-                        <div class="d-flex align-items-center gap-2 text-truncate">
-                            <span class="text-warning">●</span>
-                            <span class="text-secondary fw-semibold">@fchamorro:</span>
-                            <span class="text-light text-truncate">Cliente de la MT-03 retira a las 18:00; dejar factura lista en caja.</span>
+                    {% for nota in notas_turno %}
+                    <div class="d-flex align-items-center justify-content-between py-1 px-2 rounded" style="background: rgba(255, 255, 255, 0.02);">
+                        <!-- Lado izquierdo: Prioridad, autor y mensaje -->
+                        <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                            {% if nota.prioridad == 'urgente' %}
+                                <span class="text-danger" title="Urgente">●</span>
+                            {% elif nota.prioridad == 'info' %}
+                                <span class="text-info" title="Informativo">●</span>
+                            {% else %}
+                                <span class="text-warning" title="Operativo">●</span>
+                            {% endif %}
+                            <span class="text-secondary fw-semibold font-monospace">@{{ nota.autor.username }}:</span>
+                            <span class="text-light text-truncate font-monospace" style="font-size: 0.73rem;">{{ nota.mensaje }}</span>
                         </div>
-                        <span class="text-muted ms-3 flex-shrink-0" style="font-size: 0.68rem;">Hoy 09:15</span>
-                    </div>
 
-                    <div class="d-flex align-items-center justify-content-between text-truncate py-1 px-2 rounded" style="background: rgba(255, 255, 255, 0.02);">
-                        <div class="d-flex align-items-center gap-2 text-truncate">
-                            <span class="text-info">●</span>
-                            <span class="text-secondary fw-semibold">@{{ request.user.username|default:"admin" }}:</span>
-                            <span class="text-light text-truncate">Verificar stock de lubricantes 10W40 en Depósito Central al cerrar.</span>
+                        <!-- Lado derecho: Botones interactivos seguidos de la marca de tiempo -->
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                            <!-- 2. Editar con ↗ (Amarillo Neón) -->
+                            <button type="button" 
+                                    class="btn-note-action edit" 
+                                    title="Editar mensaje"
+                                    onclick="abrirModalEditar('{{ nota.id }}', '{{ nota.mensaje|escapejs }}', '{{ nota.prioridad }}')">
+                                &#8599;
+                            </button>
+
+                            <!-- 1. Descartar con X (Rojo Neón) -->
+                            <a href="{% url 'home_nota_eliminar' nota.id %}" 
+                            class="btn-note-action delete" 
+                            title="Descartar aviso del turno"
+                            onclick="return confirm('¿Dar por leída y archivar esta nota?');">
+                                &times;
+                            </a>
+
+                            <!-- 3. Tiempo transcurrido -->
+                            <span class="text-secondary font-monospace ms-1" style="font-size: 0.68rem;">
+                                {{ nota.fecha_creacion|timesince }} atrás
+                            </span>
                         </div>
-                        <span class="text-muted ms-3 flex-shrink-0" style="font-size: 0.68rem;">Ayer</span>
                     </div>
+                {% empty %}
+                    <div class="py-2 text-center text-muted font-monospace" style="font-size: 0.72rem;">
+                        <em>Sin avisos pendientes en el turno.</em>
+                    </div>
+                {% endfor %}
                 </div>
             </div>
         </div>
@@ -306,10 +381,147 @@
     </div>
     
 </div>
+
+<!-- Modal Técnico: Fijar Nota Rápida -->
+<div class="modal fade" id="modalNuevaNota" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content border-0 p-3" style="background: #141416; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 8px;">
+            <form method="POST" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="crear_nota" value="1">
+                
+                <div class="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom" style="border-color: rgba(255, 255, 255, 0.08) !important;">
+                    <div class="d-flex align-items-center gap-2 font-monospace">
+                        <span class="tag-dot" style="background-color: #f89838;"></span>
+                        <span class="text-white" style="font-size: 0.8rem; font-weight: 500;">NUEVA NOTA</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.7rem;"></button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="font-monospace text-light text-uppercase d-block mb-1" style="font-size: 0.68rem;">Mensaje</label>
+                    <input type="text" name="mensaje" class="form-control font-monospace text-light" 
+                           placeholder="Ej: Cliente de la MT-03 pasa a retirar a las 18:00 hs..." 
+                           maxlength="250" required
+                           style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); font-size: 0.78rem;">
+                </div>
+
+                <div class="mb-3">
+                    <label class="font-monospace text-secondary text-uppercase d-block mb-1" style="font-size: 0.68rem;">Prioridad</label>
+                    <select name="prioridad" class="form-select font-monospace text-light" style="background: #18181b; border: 1px solid rgba(255,255,255,0.12); font-size: 0.78rem;">
+                        <option value="normal" selected>Normal</option>
+                        <option value="urgente">Urgente</option>
+                        <option value="info">Informativo</option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-2 border-top" style="border-color: rgba(255, 255, 255, 0.08) !important;">
+                    <button type="button" class="btn btn-secondary py-1 px-3 font-monospace" data-bs-dismiss="modal" style="font-size: 0.72rem; background: transparent; border: 1px solid rgba(255,255,255,0.15);">Cancelar</button>
+                    <button type="submit" class="btn py-1 px-3 font-monospace text-white" style="font-size: 0.72rem; background: #FF6A2B;">Fijar Nota</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal: Editar Nota de Turno -->
+<div class="modal fade" id="modalEditarNota" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content border-0 p-3" style="background: #141416; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 8px;">
+            <form method="POST" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="editar_nota" value="1">
+                <input type="hidden" name="nota_id" id="editNotaId">
+
+                <div class="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom" style="border-color: rgba(255, 255, 255, 0.08) !important;">
+                    <div class="d-flex align-items-center gap-2 font-monospace">
+                        <span class="tag-dot" style="background-color: #facc15; box-shadow: 0 0 6px #facc15;"></span>
+                        <span class="text-white" style="font-size: 0.8rem; font-weight: 500;">EDITAR NOTA DE TURNO</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="font-size: 0.7rem;"></button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="font-monospace text-secondary text-uppercase d-block mb-1" style="font-size: 0.68rem;">Mensaje</label>
+                    <input type="text" name="mensaje" id="editNotaMensaje" class="form-control font-monospace text-light" 
+                           maxlength="250" required
+                           style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); font-size: 0.78rem;">
+                </div>
+
+                <div class="mb-3">
+                    <label class="font-monospace text-secondary text-uppercase d-block mb-1" style="font-size: 0.68rem;">Prioridad</label>
+                    <select name="prioridad" id="editNotaPrioridad" class="form-select font-monospace text-light" style="background: #18181b; border: 1px solid rgba(255,255,255,0.12); font-size: 0.78rem;">
+                        <option value="normal">Normal </option>
+                        <option value="urgente">Urgente</option>
+                        <option value="info">Informativo</option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-2 border-top" style="border-color: rgba(255, 255, 255, 0.08) !important;">
+                    <button type="button" class="btn btn-secondary py-1 px-3 font-monospace" data-bs-dismiss="modal" style="font-size: 0.72rem; background: transparent; border: 1px solid rgba(255,255,255,0.15);">Cancelar</button>
+                    <button type="submit" class="btn py-1 px-3 font-monospace text-dark fw-bold" style="font-size: 0.72rem; background: #facc15;">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal Técnico: Historial Completo de Anotaciones -->
+<div class="modal fade" id="modalHistorialNotas" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 p-3" style="background: rgba(18, 18, 20, 0.284); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 8px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);">
+            <div class="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom" style="border-color: rgba(255, 255, 255, 0.08) !important;">
+                <div class="d-flex align-items-center gap-2 font-monospace">
+                    <span class="tag-dot" style="background-color: #e2af48; box-shadow: 0 0 6px #e2af48;"></span>
+                    <span class="text-white" style="font-size: 0.82rem; font-weight: 500;">TODAS LAS ANOTACIONES</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.7rem;"></button>
+            </div>
+
+            <!-- Lista con scroll interno -->
+            <div class="d-flex flex-column gap-2" style="max-height: 420px; overflow-y: auto;">
+                {% for n in todas_las_notas %}
+                    <div class="d-flex align-items-center justify-content-between py-2 px-2.5 rounded font-monospace" 
+                         style="background: rgba(255, 255, 255, 0.02); font-size: 0.73rem; border: 1px solid rgba(255,255,255,0.03);">
+                        <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                            {% if n.prioridad == 'urgente' %}
+                                <span class="text-danger" title="Urgente">●</span>
+                            {% elif n.prioridad == 'info' %}
+                                <span class="text-info" title="Informativo">●</span>
+                            {% else %}
+                                <span class="text-warning" title="Operativo">●</span>
+                            {% endif %}
+                            <span class="text-secondary fw-semibold">@{{ n.autor.username }}:</span>
+                            <span class="{% if not n.activa %}text-muted text-decoration-line-through{% else %}text-light{% endif %} text-truncate">
+                                {{ n.mensaje }}
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                            {% if not n.activa %}
+                                <span class="badge border border-secondary text-secondary" style="font-size: 0.6rem; background: transparent;">Archivada</span>
+                            {% endif %}
+                            <span class="text-muted" style="font-size: 0.68rem;">{{ n.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-muted text-center py-4 font-monospace" style="font-size: 0.75rem;">
+                        <em>No hay anotaciones registradas en el historial.</em>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+function abrirModalEditar(id, mensaje, prioridad) {
+    document.getElementById('editNotaId').value = id;
+    document.getElementById('editNotaMensaje').value = mensaje;
+    document.getElementById('editNotaPrioridad').value = prioridad;
+    var modal = new bootstrap.Modal(document.getElementById('modalEditarNota'));
+    modal.show();
+}
+
 (function() {
     const canvas = document.getElementById('networkCanvas');
     if (!canvas) return;

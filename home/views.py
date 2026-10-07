@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from .models import NotaTurno
 
 def inicio(request):
     if request.user.is_authenticated:
@@ -49,7 +50,49 @@ def inicio(request):
 
 @login_required(login_url='inicio')
 def dashboard(request):
-    return render(request, 'home/dashboard.html')
+    if request.method == 'POST':
+        # 1. Crear nueva nota
+        if 'crear_nota' in request.POST:
+            mensaje = request.POST.get('mensaje', '').strip()
+            prioridad = request.POST.get('prioridad', 'normal')
+            if mensaje:
+                NotaTurno.objects.create(
+                    autor=request.user,
+                    mensaje=mensaje,
+                    prioridad=prioridad
+                )
+            return redirect('dashboard')
+
+        # 2. Editar nota existente
+        elif 'editar_nota' in request.POST:
+            nota_id = request.POST.get('nota_id')
+            nota = get_object_or_404(NotaTurno, id=nota_id)
+            nuevo_mensaje = request.POST.get('mensaje', '').strip()
+            nueva_prioridad = request.POST.get('prioridad', 'normal')
+            if nuevo_mensaje:
+                nota.mensaje = nuevo_mensaje
+                nota.prioridad = nueva_prioridad
+                nota.save()
+            return redirect('dashboard')
+
+    # Solo las notas activas se muestran en el dashboard
+    notas_turno = NotaTurno.objects.filter(activa=True)[:3]
+    todas_las_notas = NotaTurno.objects.all()[:50]  # Para el modal de historial
+
+    context = {
+        'notas_turno': notas_turno,
+        'todas_las_notas': todas_las_notas,
+    }
+    return render(request, 'home/dashboard.html', context)
+
+
+@login_required(login_url='inicio')
+def nota_eliminar(request, nota_id):
+    """Borrado lógico: se desactiva del dashboard pero se conserva en Django Admin."""
+    nota = get_object_or_404(NotaTurno, id=nota_id)
+    nota.activa = False  # Permanece guardada en la base de datos
+    nota.save()
+    return redirect('dashboard')
 
 def cerrar_sesion(request):
     logout(request)
