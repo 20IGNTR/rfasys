@@ -301,9 +301,9 @@
                                 &times;
                             </a>
 
-                            <!-- 3. Tiempo transcurrido -->
-                            <span class="text-secondary font-monospace ms-1" style="font-size: 0.68rem;">
-                                {{ nota.fecha_creacion|timesince }} atrás
+                            <!-- 3. Fecha y hora exacta de registro -->
+                            <span class="text-secondary font-monospace ms-1" style="font-size: 0.68rem;" title="{{ nota.fecha_creacion|date:'d/m/Y H:i' }}">
+                                {{ nota.fecha_creacion|date:"d/m/Y H:i" }}
                             </span>
                         </div>
                     </div>
@@ -399,7 +399,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="font-monospace text-light text-uppercase d-block mb-1" style="font-size: 0.68rem;">Mensaje</label>
+                    <label class="font-monospace text-secondary text-uppercase d-block mb-1" style="font-size: 0.68rem;">Mensaje</label>
                     <input type="text" name="mensaje" class="form-control font-monospace text-light" 
                            placeholder="Ej: Cliente de la MT-03 pasa a retirar a las 18:00 hs..." 
                            maxlength="250" required
@@ -490,7 +490,7 @@
                                 <span class="text-warning" title="Operativo">●</span>
                             {% endif %}
                             <span class="text-secondary fw-semibold">@{{ n.autor.username }}:</span>
-                            <span class="{% if not n.activa %}text-muted text-decoration-line-through{% else %}text-light{% endif %} text-truncate">
+                            <span class="{% if not n.activa %}text-secondary text-decoration-line-through{% else %}text-light{% endif %} text-truncate">
                                 {{ n.mensaje }}
                             </span>
                         </div>
@@ -498,7 +498,7 @@
                             {% if not n.activa %}
                                 <span class="badge border border-secondary text-secondary" style="font-size: 0.6rem; background: transparent;">Archivada</span>
                             {% endif %}
-                            <span class="text-muted" style="font-size: 0.68rem;">{{ n.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                            <span class="text-secondary" style="font-size: 0.68rem;">{{ n.fecha_creacion|date:"d/m/Y H:i" }}</span>
                         </div>
                     </div>
                 {% empty %}
